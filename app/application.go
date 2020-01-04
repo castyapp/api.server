@@ -44,38 +44,35 @@ func (a *Application) RegisterAndServeRouter()  {
 
 	a.router.Static("/uploads", "./storage/uploads")
 
-	api := a.router.Group("api"); {
+	v1 := a.router.Group("v1"); {
 
-		v1 := api.Group("v1"); {
+		authGroup := v1.Group("auth"); {
+			authGroup.POST("@create", auth.Create)
+			authGroup.PUT("@create", auth.Refresh)
+		}
 
-			authGroup := v1.Group("auth"); {
-				authGroup.POST("@create", auth.Create)
-				authGroup.PUT("@create", auth.Refresh)
-			}
+		authUserGroup := v1.Group("user").Use(middlewares.Authentication); {
 
-			authUserGroup := v1.Group("user").Use(middlewares.Authentication); {
+			authUserGroup.GET("@me", user.GetMe)
+			authUserGroup.PUT("@state", user.UpdateState)
 
-				authUserGroup.GET("@me", user.GetMe)
-				authUserGroup.PUT("@state", user.UpdateState)
+			authUserGroup.POST("@friends", user.SendFriendRequest)
+			authUserGroup.GET("@friends", user.GetFriends)
+			authUserGroup.GET("@friends/:friend_id", user.GetFriend)
 
-				authUserGroup.POST("@friends", user.SendFriendRequest)
-				authUserGroup.GET("@friends", user.GetFriends)
-				authUserGroup.GET("@friends/:friend_id", user.GetFriend)
+			// theater routes
+			authUserGroup.POST("@theaters", theater.Create)
+			authUserGroup.GET("@theaters", theater.Index)
+			authUserGroup.GET("@theaters/:theater_id", theater.Get)
+			authUserGroup.GET("@theaters/:theater_id/members", theater.GetMembers)
 
-				// theater routes
-				authUserGroup.POST("@theaters", theater.Create)
-				authUserGroup.GET("@theaters", theater.Index)
-				authUserGroup.GET("@theaters/:theater_id", theater.Get)
-				authUserGroup.GET("@theaters/:theater_id/members", theater.GetMembers)
+			authUserGroup.GET("@messages/:receiver_id", messages.Messages)
+			authUserGroup.POST("@messages/:receiver_id", messages.Create)
+			authUserGroup.GET("@search", user.Search)
+		}
 
-				authUserGroup.GET("@messages/:receiver_id", messages.Messages)
-				authUserGroup.POST("@messages/:receiver_id", messages.Create)
-				authUserGroup.GET("@search", user.Search)
-			}
-
-			userGroup := v1.Group("user"); {
-				userGroup.POST("@create", user.Create)
-			}
+		userGroup := v1.Group("user"); {
+			userGroup.POST("@create", user.Create)
 		}
 	}
 
