@@ -11,5 +11,6 @@ require (
 	github.com/iamalirezaj/go-respond v0.0.0-20191125172458-25d4d18aaa1b
 	github.com/joho/godotenv v1.3.0
 	github.com/thedevsaddam/govalidator v1.9.9
+	gitlab.com/movienight1/grpc.proto v0.0.0-20200109130142-83d752fbf3d7
 	google.golang.org/grpc v1.26.0
 )

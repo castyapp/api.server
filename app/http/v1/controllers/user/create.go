@@ -4,10 +4,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/iamalirezaj/go-respond"
 	"github.com/thedevsaddam/govalidator"
+	"gitlab.com/movienight1/grpc.proto"
+	"gitlab.com/movienight1/grpc.proto/messages"
 	"movie-night/app/components"
 	"movie-night/grpc"
-	"movie-night/proto"
-	"movie-night/proto/messages"
 	"net/http"
 )
 

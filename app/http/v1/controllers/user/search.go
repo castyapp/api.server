@@ -2,18 +2,12 @@ package user
 
 import (
 	"github.com/MrJoshLab/go-respond"
-	"movie-night/grpc"
-	"movie-night/proto"
-	"net/http"
-
-	//"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
 	"github.com/thedevsaddam/govalidator"
+	"gitlab.com/movienight1/grpc.proto"
 	"movie-night/app/components"
-	//"github.com/thedevsaddam/govalidator"
-	//"movie-night/app/components"
-	//"movie-night/app/models"
-	//"movie-night/db"
+	"movie-night/grpc"
+	"net/http"
 )
 
 func Search(ctx *gin.Context) {

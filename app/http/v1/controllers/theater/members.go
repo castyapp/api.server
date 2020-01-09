@@ -3,9 +3,9 @@ package theater
 import (
 	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
+	"gitlab.com/movienight1/grpc.proto"
+	"gitlab.com/movienight1/grpc.proto/messages"
 	"movie-night/grpc"
-	"movie-night/proto"
-	"movie-night/proto/messages"
 	"net/http"
 )
 

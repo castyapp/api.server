@@ -4,8 +4,8 @@ import (
 	"context"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
+	"gitlab.com/movienight1/grpc.proto"
 	"movie-night/grpc"
-	"movie-night/proto"
 	"net/http"
 	"time"
 )

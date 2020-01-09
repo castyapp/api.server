@@ -5,10 +5,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/iamalirezaj/go-respond"
 	"github.com/thedevsaddam/govalidator"
+	"gitlab.com/movienight1/grpc.proto"
 	"log"
 	"movie-night/app/components"
 	"movie-night/grpc"
-	"movie-night/proto"
 	"net/http"
 	"time"
 )
