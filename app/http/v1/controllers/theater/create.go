@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/MrJoshLab/go-respond"
+	"github.com/getsentry/sentry-go"
 	"github.com/gin-gonic/gin"
 	"github.com/thedevsaddam/govalidator"
 	"movie-night/app/components"
@@ -47,6 +48,8 @@ func Create(ctx *gin.Context)  {
 	if bannerFile, err := ctx.FormFile("poster"); err == nil {
 		moviePosterName = strings.RandomNumber(20)
 		if err := ctx.SaveUploadedFile(bannerFile, fmt.Sprintf("./storage/uploads/posters/%s.png", moviePosterName)); err != nil {
+
+			sentry.CaptureException(err)
 
 			ctx.JSON(respond.Default.
 				SetStatusText("Failed!").

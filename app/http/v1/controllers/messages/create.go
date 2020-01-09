@@ -4,7 +4,6 @@ import (
 	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
 	"github.com/thedevsaddam/govalidator"
-	"log"
 	"movie-night/app/components"
 	"movie-night/grpc"
 	"movie-night/proto"
@@ -42,8 +41,6 @@ func Create(ctx *gin.Context)  {
 	})
 
 	if err != nil || response.Code != http.StatusOK {
-
-		log.Println(err)
 
 		ctx.JSON(respond.Default.SetStatusText("failed").
 			SetStatusCode(500).

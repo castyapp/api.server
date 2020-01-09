@@ -1,6 +1,7 @@
 package app
 
 import (
+	"github.com/getsentry/sentry-go"
 	"github.com/gin-gonic/gin"
 	"github.com/thedevsaddam/govalidator"
 	"log"
@@ -77,6 +78,7 @@ func (a *Application) RegisterAndServeRouter()  {
 	}
 
 	if err := a.router.Run(":9002"); err != nil {
+		sentry.CaptureException(err)
 		log.Fatal(err)
 	}
 }
