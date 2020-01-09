@@ -4,23 +4,15 @@ import (
 	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
 	"movie-night/grpc"
-	"movie-night/proto"
+	"movie-night/proto/messages"
 	"net/http"
 )
 
 // Create a new Theater
 func Get(ctx *gin.Context)  {
 
-	var (
-		theaterId = ctx.Param("theater_id")
-		tokne     = ctx.Request.Header.Get("Authorization")
-	)
-
-	response, err := grpc.TheaterServiceClient.GetUserTheater(ctx, &proto.GetTheaterRequest{
-		AuthRequest: &proto.AuthenticateRequest{
-			Token: []byte(tokne),
-		},
-		TheaterId: theaterId,
+	response, err := grpc.TheaterServiceClient.GetTheater(ctx, &messages.Theater{
+		Id: ctx.Param("theater_id"),
 	})
 
 	if err != nil || response.Code != http.StatusOK {
