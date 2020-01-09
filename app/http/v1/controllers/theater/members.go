@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"movie-night/grpc"
 	"movie-night/proto"
+	"movie-night/proto/messages"
 	"net/http"
 )
 
@@ -12,6 +13,7 @@ import (
 func GetMembers(ctx *gin.Context)  {
 
 	var (
+		members   = make([]*messages.User, 0)
 		theaterId = ctx.Param("theater_id")
 		tokne     = ctx.Request.Header.Get("Authorization")
 	)
@@ -28,6 +30,10 @@ func GetMembers(ctx *gin.Context)  {
 		return
 	}
 
-	ctx.JSON(respond.Default.Succeed(response.Result))
+	if response.Result != nil {
+		members = response.Result
+	}
+
+	ctx.JSON(respond.Default.Succeed(members))
 	return
 }
