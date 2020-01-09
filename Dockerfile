@@ -22,6 +22,4 @@ WORKDIR /code
 # build project
 RUN go build -o movie.night.api.server .
 
-EXPOSE 9002
-
 CMD ["./movie.night.api.server"]
