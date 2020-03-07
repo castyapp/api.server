@@ -1,8 +1,8 @@
 package user
 
 import (
+	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
-	"github.com/iamalirezaj/go-respond"
 )
 
 // Get the current user from request

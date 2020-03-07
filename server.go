@@ -1,10 +1,10 @@
 package main
 
 import (
+	"github.com/CastyLab/api.server/app"
 	"github.com/getsentry/sentry-go"
 	_ "github.com/joho/godotenv/autoload"
 	"log"
-	"movie-night/app"
 	"os"
 	"time"
 )

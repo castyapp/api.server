@@ -1,10 +1,10 @@
 package theater
 
 import (
+	"github.com/CastyLab/api.server/grpc"
+	"github.com/CastyLab/grpc.proto/messages"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
-	"gitlab.com/movienight1/grpc.proto/messages"
-	"movie-night/grpc"
 	"net/http"
 )
 

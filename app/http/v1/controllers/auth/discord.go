@@ -1,11 +1,11 @@
 package auth
 
 import (
+	"github.com/CastyLab/api.server/app/components/discord"
+	"github.com/fatih/structs"
+	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
-	"github.com/gin-gonic/gin"
-	"github.com/fatih/structs"
-	"movie-night/app/components/discord"
 )
 
 var discordClient = discord.NewDiscordOAuth()

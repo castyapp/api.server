@@ -1,10 +1,10 @@
 package messages
 
 import (
+	"github.com/CastyLab/api.server/grpc"
+	"github.com/CastyLab/grpc.proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
-	"gitlab.com/movienight1/grpc.proto"
-	"movie-night/grpc"
 	"net/http"
 )
 

@@ -3,12 +3,12 @@ package theater
 import (
 	//"fmt"
 	"github.com/gin-gonic/gin"
-	//"github.com/iamalirezaj/go-respond"
+	//"github.com/MrJoshLab/go-respond"
 	//"github.com/thedevsaddam/govalidator"
-	//"movie-night/app/components"
-	//"movie-night/app/components/strings"
-	//"movie-night/app/models"
-	//"movie-night/db"
+	//"github.com/CastyLab/api.server/app/components"
+	//"github.com/CastyLab/api.server/app/components/strings"
+	//"github.com/CastyLab/api.server/app/models"
+	//"github.com/CastyLab/api.server/db"
 	//"net/http"
 )
 

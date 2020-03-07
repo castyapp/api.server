@@ -1,16 +1,16 @@
 package app
 
 import (
+	"github.com/CastyLab/api.server/app/http/v1/controllers/auth"
+	"github.com/CastyLab/api.server/app/http/v1/controllers/messages"
+	"github.com/CastyLab/api.server/app/http/v1/controllers/theater"
+	"github.com/CastyLab/api.server/app/http/v1/controllers/user"
+	"github.com/CastyLab/api.server/app/http/v1/middlewares"
+	"github.com/CastyLab/api.server/app/http/v1/validators"
 	"github.com/getsentry/sentry-go"
 	"github.com/gin-gonic/gin"
 	"github.com/thedevsaddam/govalidator"
 	"log"
-	"movie-night/app/http/v1/controllers/auth"
-	"movie-night/app/http/v1/controllers/messages"
-	"movie-night/app/http/v1/controllers/theater"
-	"movie-night/app/http/v1/controllers/user"
-	"movie-night/app/http/v1/middlewares"
-	"movie-night/app/http/v1/validators"
 	"os"
 )
 

@@ -1,13 +1,13 @@
 package user
 
 import (
+	"github.com/CastyLab/api.server/app/components"
+	"github.com/CastyLab/api.server/grpc"
+	"github.com/CastyLab/grpc.proto"
+	"github.com/CastyLab/grpc.proto/messages"
+	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
-	"github.com/iamalirezaj/go-respond"
 	"github.com/thedevsaddam/govalidator"
-	"gitlab.com/movienight1/grpc.proto"
-	"gitlab.com/movienight1/grpc.proto/messages"
-	"movie-night/app/components"
-	"movie-night/grpc"
 	"net/http"
 )
 
