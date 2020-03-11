@@ -44,12 +44,18 @@ func Create(c *gin.Context)  {
 		},
 	})
 
-	if response.Code == 420 {
-		c.JSON(respond.Default.ValidationErrors(response.ValidationError))
+	if response != nil && response.Code == 420 {
+
+		valErrs := make(map[string] interface{})
+		for _, verr := range response.ValidationError {
+			valErrs[verr.Field] = verr.Errors
+		}
+
+		c.JSON(respond.Default.ValidationErrors(valErrs))
 		return
 	}
 
-	if err != nil || response.Code != http.StatusOK {
+	if err != nil || response == nil || response.Code != http.StatusOK {
 		c.JSON(respond.Default.SetStatusCode(420).
 			SetStatusText("failed").
 			RespondWithMessage("Could not create user."))

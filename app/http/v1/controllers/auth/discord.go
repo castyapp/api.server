@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"github.com/CastyLab/api.server/app/components/discord"
+	"github.com/CastyLab/api.server/app/components/oauth/discord"
 	"github.com/fatih/structs"
 	"github.com/gin-gonic/gin"
 	"log"
