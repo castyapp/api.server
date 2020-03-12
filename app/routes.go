@@ -3,7 +3,7 @@ package app
 import (
 	"github.com/CastyLab/api.server/app/http/v1/controllers/auth"
 	"github.com/CastyLab/api.server/app/http/v1/controllers/messages"
-	"github.com/CastyLab/api.server/app/http/v1/controllers/oauth/google"
+	"github.com/CastyLab/api.server/app/http/v1/controllers/oauth"
 	"github.com/CastyLab/api.server/app/http/v1/controllers/theater"
 	"github.com/CastyLab/api.server/app/http/v1/controllers/user"
 	"github.com/CastyLab/api.server/app/http/v1/middlewares"
@@ -16,7 +16,7 @@ func (a *Application) RegisterRoutes()  {
 	v1 := a.router.Group("v1"); {
 
 		oauthGroup := v1.Group("oauth"); {
-			oauthGroup.POST("google/@callback", google.Callback)
+			oauthGroup.POST(":service/@callback", oauth.Callback)
 		}
 
 		authGroup := v1.Group("auth"); {

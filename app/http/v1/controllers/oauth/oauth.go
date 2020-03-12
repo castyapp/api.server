@@ -1,4 +1,4 @@
-package google
+package oauth
 
 import (
 	"context"
@@ -16,6 +16,7 @@ import (
 func Callback(ctx *gin.Context)  {
 
 	var (
+		service proto.OAUTHRequest_Service
 		rules = govalidator.MapData{
 			"code": []string{"required"},
 		}
@@ -27,12 +28,18 @@ func Callback(ctx *gin.Context)  {
 		validate = govalidator.New(opts).Validate()
 	)
 
+	switch serviceName := ctx.Param("service"); serviceName {
+	case "google": service = proto.OAUTHRequest_Google
+	case "discord": service = proto.OAUTHRequest_Discord
+	default: service = proto.OAUTHRequest_Invalid
+	}
+
 	if validate.Encode() == "" {
 
-		mCtx, _ := context.WithTimeout(ctx, 20 * time.Second)
+		mCtx, _ := context.WithTimeout(ctx, 10 * time.Second)
 		response, err := grpc.AuthServiceClient.CallbackOAUTH(mCtx, &proto.OAUTHRequest{
 			Code: ctx.PostForm("code"),
-			Service: proto.OAUTHRequest_Google,
+			Service: service,
 		})
 
 		if err != nil {

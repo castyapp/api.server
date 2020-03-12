@@ -11,6 +11,8 @@ import (
 
 func main() {
 
+	log.SetFlags(log.Lshortfile)
+
 	if err := sentry.Init(sentry.ClientOptions{ Dsn: os.Getenv("SENTRY_DSN") }); err != nil {
 		log.Fatal(err)
 	}

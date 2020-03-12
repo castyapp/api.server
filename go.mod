@@ -3,7 +3,7 @@ module github.com/CastyLab/api.server
 go 1.14
 
 require (
-	github.com/CastyLab/grpc.proto v0.0.0-20200311231322-0e27beee5a18 // indirect
+	github.com/CastyLab/grpc.proto v0.0.0-20200311231322-0e27beee5a18
 	github.com/MrJoshLab/go-respond v0.0.0-20191125172458-25d4d18aaa1b
 	github.com/fatih/structs v1.1.0
 	github.com/getsentry/sentry-go v0.5.1
