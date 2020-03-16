@@ -27,16 +27,21 @@ func (a *Application) RegisterRoutes()  {
 		authUserGroup := v1.Group("user").Use(middlewares.Authentication); {
 
 			authUserGroup.GET("@me", user.GetMe)
-			authUserGroup.PUT("@state", user.UpdateState)
+
+			authUserGroup.GET("@notifications", user.Notifications)
+			authUserGroup.DELETE("@notifications", user.ReadAllNotifications)
 
 			authUserGroup.POST("@friends", user.SendFriendRequest)
 			authUserGroup.GET("@friends", user.GetFriends)
 			authUserGroup.GET("@friends/:friend_id", user.GetFriend)
+			authUserGroup.GET("@friends/:friend_id/@fr", user.GetFriendRequest)
+			authUserGroup.POST("@friends/accept", user.AcceptFriendRequest)
 
 			// theater routes
 			authUserGroup.POST("@theaters", theater.Create)
 			authUserGroup.GET("@theaters", theater.Index)
 			authUserGroup.GET("@theaters/:theater_id", theater.Get)
+			authUserGroup.POST("@theaters/:theater_id/invite", theater.Invite)
 			authUserGroup.GET("@theaters/:theater_id/members", theater.GetMembers)
 
 			authUserGroup.GET("@messages/:receiver_id", messages.Messages)

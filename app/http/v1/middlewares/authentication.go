@@ -6,7 +6,6 @@ import (
 	"github.com/CastyLab/grpc.proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -30,9 +29,6 @@ func Authentication(ctx *gin.Context)  {
 	})
 
 	if err != nil || !response.Result.IsActive {
-
-		log.Println(response, err)
-
 		ctx.AbortWithStatusJSON(respond.Default.Error(http.StatusUnauthorized, 3012))
 		return
 	}

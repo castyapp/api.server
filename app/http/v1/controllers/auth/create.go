@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"github.com/CastyLab/api.server/app/components"
+	"github.com/CastyLab/api.server/app/components/recaptcha"
 	"github.com/CastyLab/api.server/grpc"
 	"github.com/CastyLab/grpc.proto"
 	"github.com/MrJoshLab/go-respond"
@@ -14,17 +15,16 @@ import (
 )
 
 // Create user jwt token
-func Create(c *gin.Context) {
+func Create(ctx *gin.Context) {
 
 	var (
-		username string
 		rules = govalidator.MapData{
-			"password":    []string{"required", "min:4", "max:30"},
-			"username":    []string{"between:3,8"},
-			"email":       []string{"min:4", "email"},
+			"pass": []string{"required", "min:4", "max:30"},
+			"user": []string{"required"},
+			"g-recaptcha-response": []string{"required"},
 		}
 		opts = govalidator.Options{
-			Request:         c.Request,
+			Request:         ctx.Request,
 			Rules:           rules,
 			RequiredDefault: false,
 		}
@@ -34,27 +34,30 @@ func Create(c *gin.Context) {
 
 	if validate.Encode() == "" {
 
-		if postFormUser := c.PostForm("username"); postFormUser != "" {
-			username = postFormUser
-		}
-
-		if postFormUser := c.PostForm("email"); postFormUser != "" {
-			username = postFormUser
-		}
-
-		if username == "" {
-			c.JSON(respond.Default.ValidationErrors(map[string] interface{} {
-				"user": []string {
-					"Username or email is required!",
+		if success, err := recaptcha.Verify(ctx); err != nil || !success {
+			ctx.JSON(respond.Default.ValidationErrors(map[string] interface{} {
+				"recaptcha": []string {
+					"Captcha is invalid!",
 				},
 			}))
 			return
 		}
 
-		mCtx, _ := context.WithTimeout(c, 20 * time.Second)
+		userInput := ctx.PostForm("user")
+
+		if userInput == "" {
+			ctx.JSON(respond.Default.ValidationErrors(map[string] interface{} {
+				"user": []string {
+					"User field is required!",
+				},
+			}))
+			return
+		}
+
+		mCtx, _ := context.WithTimeout(ctx, 20 * time.Second)
 		response, err := grpc.AuthServiceClient.Authenticate(mCtx, &proto.AuthRequest{
-			User: username,
-			Pass: c.PostForm("password"),
+			User: userInput,
+			Pass: ctx.PostForm("pass"),
 		})
 
 		if err != nil {
@@ -63,7 +66,7 @@ func Create(c *gin.Context) {
 		}
 
 		if response.Code == http.StatusOK {
-			c.JSON(respond.Default.Succeed(map[string] interface{} {
+			ctx.JSON(respond.Default.Succeed(map[string] interface{} {
 				"token": string(response.Token),
 				"refreshed_token": string(response.RefreshedToken),
 				"type": "bearer",
@@ -71,13 +74,13 @@ func Create(c *gin.Context) {
 			return
 		}
 
-		c.JSON(respond.Default.SetStatusCode(http.StatusUnauthorized).
+		ctx.JSON(respond.Default.SetStatusCode(http.StatusUnauthorized).
 			SetStatusText("Failed!").
 			RespondWithMessage("Unauthorized!"))
 		return
 	}
 
 	validations := components.GetValidationErrorsFromGoValidator(validate)
-	c.JSON(respond.Default.ValidationErrors(validations))
+	ctx.JSON(respond.Default.ValidationErrors(validations))
 	return
 }

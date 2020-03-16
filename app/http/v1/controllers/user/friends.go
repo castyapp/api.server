@@ -37,6 +37,32 @@ func GetFriend(ctx *gin.Context)  {
 	return
 }
 
+func GetFriendRequest(ctx *gin.Context)  {
+
+	var (
+		requestID = ctx.Param("friend_id")
+		token = ctx.Request.Header.Get("Authorization")
+		mCtx, _ = context.WithTimeout(ctx, 20 * time.Second)
+	)
+
+	response, err := grpc.UserServiceClient.GetFriendRequest(mCtx, &proto.FriendRequest{
+		RequestId: requestID,
+		AuthRequest: &proto.AuthenticateRequest{
+			Token: []byte(token),
+		},
+	})
+
+	if err != nil {
+		ctx.JSON(respond.Default.SetStatusText("failed").
+			SetStatusCode(http.StatusNotFound).
+			RespondWithMessage("Could not find friend request!"))
+		return
+	}
+
+	ctx.JSON(respond.Default.Succeed(response))
+	return
+}
+
 func GetFriends(ctx *gin.Context)  {
 
 	mCtx, _ := context.WithTimeout(ctx, 20 * time.Second)

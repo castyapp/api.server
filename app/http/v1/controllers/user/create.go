@@ -18,8 +18,8 @@ func Create(c *gin.Context)  {
 		rules = govalidator.MapData{
 			"fullname":    []string{"min:4", "max:30"},
 			"password":    []string{"required", "min:4", "max:30"},
-			"username":    []string{"required", "between:3,8"},
-			"email":       []string{"required", "min:4", "email"},
+			"username":    []string{"required", "between:3,20"},
+			"email":       []string{"required", "email"},
 		}
 		opts = govalidator.Options{
 			Request:         c.Request,

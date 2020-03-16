@@ -41,8 +41,23 @@ func SendFriendRequest(ctx *gin.Context) {
 		},
 	})
 
-	if err != nil || response.Code != http.StatusOK {
+	if err != nil {
+		ctx.JSON(respond.Default.SetStatusCode(500).
+			SetStatusText("Failed!").
+			RespondWithMessage("Something went wrong, Please try again later!"))
+		return
+	}
 
+	switch response.Code {
+	case 409:
+		ctx.JSON(respond.Default.SetStatusText("Failed!").
+			SetStatusCode(409).
+			RespondWithMessage("Friend request sent already!"))
+		return
+	case http.StatusOK:
+		ctx.JSON(respond.Default.InsertSucceeded())
+		return
+	default:
 		ctx.JSON(respond.Default.ValidationErrors(map[string] interface{} {
 			"friend_id": []string {
 				"Could not sent a friend request to this user!",
@@ -50,7 +65,57 @@ func SendFriendRequest(ctx *gin.Context) {
 		}))
 		return
 	}
+}
 
-	ctx.JSON(respond.Default.InsertSucceeded())
-	return
+func AcceptFriendRequest(ctx *gin.Context) {
+
+	var (
+		rules = govalidator.MapData{
+			"request_id": []string{"required"},
+		}
+		opts = govalidator.Options{
+			Request:         ctx.Request,
+			Rules:           rules,
+			RequiredDefault: true,
+		}
+	)
+
+	if validate := govalidator.New(opts).Validate(); validate.Encode() != "" {
+
+		validations := components.GetValidationErrorsFromGoValidator(validate)
+		ctx.JSON(respond.Default.ValidationErrors(validations))
+		return
+	}
+
+	mCtx, _ := context.WithTimeout(ctx, 20 * time.Second)
+
+	response, err := grpc.UserServiceClient.AcceptFriendRequest(mCtx, &proto.FriendRequest{
+		RequestId: ctx.PostForm("request_id"),
+		AuthRequest: &proto.AuthenticateRequest{
+			Token: []byte(ctx.Request.Header.Get("Authorization")),
+		},
+	})
+
+	if err != nil {
+		ctx.JSON(respond.Default.SetStatusCode(http.StatusBadRequest).
+			SetStatusText("Failed!").
+			RespondWithMessage("Something went wrong, Please try again later!"))
+		return
+	}
+
+	switch response.Code {
+	case http.StatusOK:
+		ctx.JSON(respond.Default.SetStatusCode(http.StatusOK).
+			SetStatusText("success").
+			RespondWithMessage("Friend request accepted successfully!"))
+		return
+	default:
+		ctx.JSON(respond.Default.ValidationErrors(map[string] interface{} {
+			"friend_id": []string {
+				"Could not accept friend request, Pleae try again later!",
+			},
+		}))
+		return
+	}
+
 }
