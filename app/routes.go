@@ -27,6 +27,7 @@ func (a *Application) RegisterRoutes()  {
 		authUserGroup := v1.Group("user").Use(middlewares.Authentication); {
 
 			authUserGroup.GET("@me", user.GetMe)
+			authUserGroup.PUT("@me", user.Update)
 
 			authUserGroup.GET("@notifications", user.Notifications)
 			authUserGroup.DELETE("@notifications", user.ReadAllNotifications)
