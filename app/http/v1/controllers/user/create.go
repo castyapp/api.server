@@ -1,7 +1,9 @@
 package user
 
 import (
+	"context"
 	"github.com/CastyLab/api.server/app/components"
+	"github.com/CastyLab/api.server/app/components/recaptcha"
 	"github.com/CastyLab/api.server/grpc"
 	"github.com/CastyLab/grpc.proto"
 	"github.com/CastyLab/grpc.proto/messages"
@@ -9,38 +11,60 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/thedevsaddam/govalidator"
 	"net/http"
+	"time"
 )
 
 // Create a new user
-func Create(c *gin.Context)  {
+func Create(ctx *gin.Context)  {
 
 	var (
 		rules = govalidator.MapData{
-			"fullname":    []string{"min:4", "max:30"},
-			"password":    []string{"required", "min:4", "max:30"},
-			"username":    []string{"required", "between:3,20"},
-			"email":       []string{"required", "email"},
+			"fullname":                 []string{"min:4", "max:30"},
+			"password":                 []string{"required", "min:4", "max:30"},
+			"password_confirmation":    []string{"required", "min:4", "max:30"},
+			"username":                 []string{"required", "between:3,20"},
+			"email":                    []string{"required", "email"},
+			"g-recaptcha-response":     []string{"required"},
 		}
 		opts = govalidator.Options{
-			Request:         c.Request,
+			Request:         ctx.Request,
 			Rules:           rules,
 			RequiredDefault: true,
 		}
+		mCtx, _ = context.WithTimeout(ctx, 10 * time.Second)
 	)
 
 	if validate := govalidator.New(opts).Validate(); validate.Encode() != "" {
 
 		validations := components.GetValidationErrorsFromGoValidator(validate)
-		c.JSON(respond.Default.ValidationErrors(validations))
+		ctx.JSON(respond.Default.ValidationErrors(validations))
 		return
 	}
 
-	response, err := grpc.UserServiceClient.CreateUser(c, &proto.CreateUserRequest{
+	if ctx.PostForm("password") != ctx.PostForm("password_confirmation") {
+		ctx.JSON(respond.Default.ValidationErrors(map[string] interface{} {
+			"password": []string {
+				"Passwords are not match!",
+			},
+		}))
+		return
+	}
+
+	if success, err := recaptcha.Verify(ctx); err != nil || !success {
+		ctx.JSON(respond.Default.ValidationErrors(map[string] interface{} {
+			"recaptcha": []string {
+				"Captcha is invalid!",
+			},
+		}))
+		return
+	}
+
+	response, err := grpc.UserServiceClient.CreateUser(mCtx, &proto.CreateUserRequest{
 		User: &messages.User{
-			Fullname: c.PostForm("fullname"),
-			Username: c.PostForm("username"),
-			Email:    c.PostForm("email"),
-			Password: c.PostForm("password"),
+			Fullname: ctx.PostForm("fullname"),
+			Username: ctx.PostForm("username"),
+			Email:    ctx.PostForm("email"),
+			Password: ctx.PostForm("password"),
 		},
 	})
 
@@ -51,18 +75,18 @@ func Create(c *gin.Context)  {
 			valErrs[verr.Field] = verr.Errors
 		}
 
-		c.JSON(respond.Default.ValidationErrors(valErrs))
+		ctx.JSON(respond.Default.ValidationErrors(valErrs))
 		return
 	}
 
 	if err != nil || response == nil || response.Code != http.StatusOK {
-		c.JSON(respond.Default.SetStatusCode(420).
+		ctx.JSON(respond.Default.SetStatusCode(420).
 			SetStatusText("failed").
 			RespondWithMessage("Could not create user."))
 		return
 	}
 
-	c.JSON(respond.Default.Succeed(map[string] interface{} {
+	ctx.JSON(respond.Default.Succeed(map[string] interface{} {
 		"token": string(response.Token),
 		"refreshed_token": string(response.Token),
 		"type": "bearer",

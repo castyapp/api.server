@@ -8,7 +8,6 @@ import (
 	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
 	"github.com/thedevsaddam/govalidator"
-	"log"
 	"net/http"
 	"time"
 )
@@ -32,6 +31,10 @@ func Callback(ctx *gin.Context)  {
 	case "google": service = proto.OAUTHRequest_Google
 	case "discord": service = proto.OAUTHRequest_Discord
 	default: service = proto.OAUTHRequest_Invalid
+		ctx.JSON(respond.Default.SetStatusCode(http.StatusBadRequest).
+			SetStatusText("Failed!").
+			RespondWithMessage("Invalid OAUTH Service!"))
+		return
 	}
 
 	if validate.Encode() == "" {
@@ -43,7 +46,9 @@ func Callback(ctx *gin.Context)  {
 		})
 
 		if err != nil {
-			log.Println(err)
+			ctx.JSON(respond.Default.SetStatusCode(http.StatusUnauthorized).
+				SetStatusText("Failed!").
+				RespondWithMessage("Unauthorized!"))
 			return
 		}
 
