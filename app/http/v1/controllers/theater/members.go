@@ -2,8 +2,7 @@ package theater
 
 import (
 	"github.com/CastyLab/api.server/grpc"
-	"github.com/CastyLab/grpc.proto"
-	"github.com/CastyLab/grpc.proto/messages"
+	"github.com/CastyLab/grpc.proto/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -13,7 +12,7 @@ import (
 func GetMembers(ctx *gin.Context)  {
 
 	var (
-		members   = make([]*messages.User, 0)
+		members   = make([]*proto.User, 0)
 		theaterId = ctx.Param("theater_id")
 		tokne     = ctx.Request.Header.Get("Authorization")
 	)

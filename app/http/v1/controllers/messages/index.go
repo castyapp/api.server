@@ -2,7 +2,7 @@ package messages
 
 import (
 	"github.com/CastyLab/api.server/grpc"
-	"github.com/CastyLab/grpc.proto"
+	"github.com/CastyLab/grpc.proto/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
 	"net/http"

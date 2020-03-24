@@ -6,8 +6,7 @@ import (
 	"github.com/CastyLab/api.server/app/components"
 	"github.com/CastyLab/api.server/app/components/strings"
 	"github.com/CastyLab/api.server/grpc"
-	proto "github.com/CastyLab/grpc.proto"
-	"github.com/CastyLab/grpc.proto/messages"
+	"github.com/CastyLab/grpc.proto/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/getsentry/sentry-go"
 	"github.com/gin-gonic/gin"
@@ -19,7 +18,7 @@ import (
 func Update(ctx *gin.Context)  {
 
 	var (
-		protoUser = new(messages.User)
+		protoUser = new(proto.User)
 		token = ctx.Request.Header.Get("Authorization")
 		rules = govalidator.MapData{
 			"fullname":     []string{"min:4", "max:30"},

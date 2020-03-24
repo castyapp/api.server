@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"github.com/CastyLab/api.server/app/http/v1/requests"
 	"github.com/CastyLab/api.server/grpc"
-	proto "github.com/CastyLab/grpc.proto"
+	"github.com/CastyLab/grpc.proto/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
 	"log"

@@ -3,8 +3,7 @@ package user
 import (
 	"context"
 	"github.com/CastyLab/api.server/grpc"
-	proto "github.com/CastyLab/grpc.proto"
-	"github.com/CastyLab/grpc.proto/messages"
+	"github.com/CastyLab/grpc.proto/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -14,7 +13,7 @@ import (
 func Notifications(ctx *gin.Context)  {
 
 	var (
-		notifications = make([]*messages.Notification, 0)
+		notifications = make([]*proto.Notification, 0)
 		token = ctx.Request.Header.Get("Authorization")
 		mCtx, _ = context.WithTimeout(ctx, 20 * time.Second)
 	)

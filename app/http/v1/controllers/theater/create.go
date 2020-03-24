@@ -6,8 +6,7 @@ import (
 	"github.com/CastyLab/api.server/app/components"
 	"github.com/CastyLab/api.server/app/components/strings"
 	"github.com/CastyLab/api.server/grpc"
-	"github.com/CastyLab/grpc.proto"
-	"github.com/CastyLab/grpc.proto/messages"
+	"github.com/CastyLab/grpc.proto/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/getsentry/sentry-go"
 	"github.com/gin-gonic/gin"
@@ -64,11 +63,11 @@ func Create(ctx *gin.Context)  {
 
 	mCtx, _ := context.WithTimeout(ctx, 20 * time.Second)
 	response, err := grpc.TheaterServiceClient.CreateTheater(mCtx, &proto.CreateTheaterRequest{
-		Theater: &messages.Theater{
+		Theater: &proto.Theater{
 			Title: ctx.PostForm("title"),
-			Privacy: messages.PRIVACY(privacy),
-			VideoPlayerAccess: messages.PRIVACY(videoPlayerAccess),
-			Movie: &messages.Movie{
+			Privacy: proto.PRIVACY(privacy),
+			VideoPlayerAccess: proto.PRIVACY(videoPlayerAccess),
+			Movie: &proto.Movie{
 				Poster: moviePosterName,
 				MovieUri: ctx.PostForm("movie_uri"),
 			},

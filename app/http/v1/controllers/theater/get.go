@@ -2,7 +2,7 @@ package theater
 
 import (
 	"github.com/CastyLab/api.server/grpc"
-	"github.com/CastyLab/grpc.proto/messages"
+	"github.com/CastyLab/grpc.proto/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -11,7 +11,7 @@ import (
 // Create a new Theater
 func Get(ctx *gin.Context)  {
 
-	response, err := grpc.TheaterServiceClient.GetTheater(ctx, &messages.Theater{
+	response, err := grpc.TheaterServiceClient.GetTheater(ctx, &proto.Theater{
 		Id: ctx.Param("theater_id"),
 	})
 

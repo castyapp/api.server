@@ -5,8 +5,7 @@ import (
 	"github.com/CastyLab/api.server/app/components"
 	"github.com/CastyLab/api.server/app/components/recaptcha"
 	"github.com/CastyLab/api.server/grpc"
-	"github.com/CastyLab/grpc.proto"
-	"github.com/CastyLab/grpc.proto/messages"
+	"github.com/CastyLab/grpc.proto/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
 	"github.com/thedevsaddam/govalidator"
@@ -60,7 +59,7 @@ func Create(ctx *gin.Context)  {
 	}
 
 	response, err := grpc.UserServiceClient.CreateUser(mCtx, &proto.CreateUserRequest{
-		User: &messages.User{
+		User: &proto.User{
 			Fullname: ctx.PostForm("fullname"),
 			Username: ctx.PostForm("username"),
 			Email:    ctx.PostForm("email"),

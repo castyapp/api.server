@@ -3,8 +3,7 @@ package theater
 import (
 	"context"
 	"github.com/CastyLab/api.server/grpc"
-	"github.com/CastyLab/grpc.proto"
-	"github.com/CastyLab/grpc.proto/messages"
+	"github.com/CastyLab/grpc.proto/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -14,7 +13,7 @@ import (
 func Index(ctx *gin.Context)  {
 
 	var (
-		theaters = make([]*messages.Theater, 0)
+		theaters = make([]*proto.Theater, 0)
 		token = ctx.Request.Header.Get("Authorization")
 		mCtx, _ = context.WithTimeout(ctx, 20 * time.Second)
 	)
