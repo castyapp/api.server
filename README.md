@@ -9,7 +9,7 @@ You can find API Documentations on Postman
 
 ## Requirements
 * Golang `(1.14)` Always be up to date!) [Install Golang!](https://golang.org/doc/install)
-* gRPC.server **This project need to connect to Casty gRPC.server!**  [Get start here](https://github.com/CastyLab/grpc.server)
+* gRPC.server **This project needs to connect to Casty gRPC server!**  [More info](https://github.com/CastyLab/grpc.server)
 
 ## Clone the project
 ```bash
@@ -43,11 +43,10 @@ SENTRY_DSN=
 
 for more information about google recaptcha [click here](https://developers.google.com/recaptcha/intro)
 
-Finally, You're ready to Go!
+You're ready to Go!
 
 ## Run project with go compiler
 you can simply run the project with following command
-* this command with install dependencies and after that will run the project
 * this project uses go mod file, You can run this project out of the $GOPAH file!
 ```bash
 $ go run server.go
