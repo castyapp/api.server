@@ -3,6 +3,10 @@ package theater
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"strconv"
+	"time"
+
 	"github.com/CastyLab/api.server/app/components"
 	"github.com/CastyLab/api.server/app/components/strings"
 	"github.com/CastyLab/api.server/grpc"
@@ -11,23 +15,20 @@ import (
 	"github.com/getsentry/sentry-go"
 	"github.com/gin-gonic/gin"
 	"github.com/thedevsaddam/govalidator"
-	"net/http"
-	"strconv"
-	"time"
 )
 
 // Create a new Theater
-func Create(ctx *gin.Context)  {
+func Create(ctx *gin.Context) {
 
 	var (
 		token = ctx.Request.Header.Get("Authorization")
 		rules = govalidator.MapData{
-			"title":                 []string{"required", "min:4", "max:30"},
-			"video_player_access":   []string{"required", "bool"},
-			"privacy":               []string{"required", "access"},
-			"movie_uri":             []string{"required", "url"},
-			"file:poster":           []string{"ext:jpg,jpeg,png", "size:2000000"},
-			"file:subtitles":        []string{"ext:srt", "size:20000000"},
+			"title":               []string{"required", "min:4", "max:30"},
+			"video_player_access": []string{"required", "bool"},
+			"privacy":             []string{"required", "access"},
+			"movie_uri":           []string{"required"},
+			"file:poster":         []string{"ext:jpg,jpeg,png", "size:2000000"},
+			"file:subtitles":      []string{"ext:srt", "size:20000000"},
 		}
 		opts = govalidator.Options{
 			Request:         ctx.Request,
@@ -67,16 +68,16 @@ func Create(ctx *gin.Context)  {
 		movieType = proto.MovieType(typeID)
 	}
 
-	mCtx, _ := context.WithTimeout(ctx, 20 * time.Second)
+	mCtx, _ := context.WithTimeout(ctx, 20*time.Second)
 	response, err := grpc.TheaterServiceClient.CreateTheater(mCtx, &proto.CreateTheaterRequest{
 		Theater: &proto.Theater{
-			Title: ctx.PostForm("title"),
-			Privacy: proto.PRIVACY(privacy),
+			Title:             ctx.PostForm("title"),
+			Privacy:           proto.PRIVACY(privacy),
 			VideoPlayerAccess: proto.PRIVACY(videoPlayerAccess),
 			Movie: &proto.Movie{
 				Poster: moviePosterName,
-				Type: movieType,
-				Uri: ctx.PostForm("uri"),
+				Type:   movieType,
+				Uri:    ctx.PostForm("uri"),
 			},
 		},
 		AuthRequest: &proto.AuthenticateRequest{
