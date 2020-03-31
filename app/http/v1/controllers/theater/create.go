@@ -61,6 +61,12 @@ func Create(ctx *gin.Context)  {
 	privacy, _ := strconv.Atoi(ctx.PostForm("privacy"))
 	videoPlayerAccess, _ := strconv.Atoi(ctx.PostForm("video_player_access"))
 
+	movieType := proto.MovieType_UNKNOWN
+	typeID, err := strconv.Atoi(ctx.PostForm("type"))
+	if err == nil {
+		movieType = proto.MovieType(typeID)
+	}
+
 	mCtx, _ := context.WithTimeout(ctx, 20 * time.Second)
 	response, err := grpc.TheaterServiceClient.CreateTheater(mCtx, &proto.CreateTheaterRequest{
 		Theater: &proto.Theater{
@@ -69,7 +75,8 @@ func Create(ctx *gin.Context)  {
 			VideoPlayerAccess: proto.PRIVACY(videoPlayerAccess),
 			Movie: &proto.Movie{
 				Poster: moviePosterName,
-				MovieUri: ctx.PostForm("movie_uri"),
+				Type: movieType,
+				Uri: ctx.PostForm("uri"),
 			},
 		},
 		AuthRequest: &proto.AuthenticateRequest{
