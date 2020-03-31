@@ -77,7 +77,7 @@ func Create(ctx *gin.Context) {
 			Movie: &proto.Movie{
 				Poster: moviePosterName,
 				Type:   movieType,
-				Uri:    ctx.PostForm("uri"),
+				Uri:    ctx.PostForm("movie_uri"),
 			},
 		},
 		AuthRequest: &proto.AuthenticateRequest{
