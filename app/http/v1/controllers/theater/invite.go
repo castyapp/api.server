@@ -8,7 +8,6 @@ import (
 	"github.com/CastyLab/grpc.proto/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 	"time"
 )
@@ -49,10 +48,9 @@ func Invite(ctx *gin.Context)  {
 	})
 
 	if err != nil || response.Code != http.StatusOK {
-
-		log.Println(err, response)
-
-		ctx.JSON(respond.Default.Error(500, 5445))
+		ctx.JSON(respond.Default.SetStatusCode(http.StatusBadRequest).
+			SetStatusText("failed").
+			RespondWithMessage("Could not send invitations, Please tray again later!"))
 		return
 	}
 
