@@ -3,7 +3,6 @@ package theater
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -36,9 +35,6 @@ func Create(ctx *gin.Context) {
 			RequiredDefault: true,
 		}
 	)
-
-	log.Println(ctx.GetPostFormArray("subtitles"))
-	log.Println(ctx.PostFormArray("subtitles"))
 
 	if validate := govalidator.New(opts).Validate(); validate.Encode() != "" {
 

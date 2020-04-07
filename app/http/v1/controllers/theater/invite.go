@@ -60,6 +60,8 @@ func Invite(ctx *gin.Context)  {
 		_ = internal.Client.UserService.SendNewNotificationsEvent(friendId)
 	}
 
-	ctx.JSON(respond.Default.Succeed(response.Result[0]))
+	ctx.JSON(respond.Default.SetStatusCode(200).
+		SetStatusText("success").
+		RespondWithMessage("Invited!"))
 	return
 }
