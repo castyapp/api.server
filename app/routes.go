@@ -43,9 +43,12 @@ func (a *Application) RegisterRoutes()  {
 			authUserGroup.GET("@theaters", theater.Index)
 			authUserGroup.GET("@theaters/:theater_id", theater.Get)
 			authUserGroup.DELETE("@theaters/:theater_id", theater.Remove)
-			authUserGroup.POST("@theaters/:theater_id/invite", theater.Invite)
-			authUserGroup.GET("@theaters/:theater_id/members", theater.GetMembers)
 
+			authUserGroup.GET("@theaters/:theater_id/subtitles", theater.Subtitles)
+			authUserGroup.POST("@theaters/:theater_id/subtitles", theater.AddSubtitle)
+
+			authUserGroup.POST("@theaters/:theater_id/invite", theater.Invite)
+			
 			authUserGroup.GET("@messages/:receiver_id", messages.Messages)
 			authUserGroup.POST("@messages/:receiver_id", messages.Create)
 			authUserGroup.GET("@search", user.Search)

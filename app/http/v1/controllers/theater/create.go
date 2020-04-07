@@ -3,6 +3,7 @@ package theater
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -28,7 +29,6 @@ func Create(ctx *gin.Context) {
 			"privacy":             []string{"required", "access"},
 			"movie_uri":           []string{"required"},
 			"file:poster":         []string{"ext:jpg,jpeg,png", "size:2000000"},
-			"file:subtitles":      []string{"ext:srt", "size:20000000"},
 		}
 		opts = govalidator.Options{
 			Request:         ctx.Request,
@@ -36,6 +36,9 @@ func Create(ctx *gin.Context) {
 			RequiredDefault: true,
 		}
 	)
+
+	log.Println(ctx.GetPostFormArray("subtitles"))
+	log.Println(ctx.PostFormArray("subtitles"))
 
 	if validate := govalidator.New(opts).Validate(); validate.Encode() != "" {
 

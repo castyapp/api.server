@@ -1,92 +1,112 @@
 package theater
 
 import (
-	//"fmt"
+	"context"
+	"github.com/CastyLab/api.server/app/components"
+	"github.com/CastyLab/api.server/app/components/subtitle"
+	"github.com/CastyLab/api.server/grpc"
+	"github.com/CastyLab/grpc.proto/proto"
+	"github.com/MrJoshLab/go-respond"
+	"github.com/getsentry/sentry-go"
 	"github.com/gin-gonic/gin"
-	//"github.com/MrJoshLab/go-respond"
-	//"github.com/thedevsaddam/govalidator"
-	//"github.com/CastyLab/api.server/app/components"
-	//"github.com/CastyLab/api.server/app/components/strings"
-	//"github.com/CastyLab/api.server/app/models"
-	//"github.com/CastyLab/api.server/db"
-	//"net/http"
+	"github.com/thedevsaddam/govalidator"
+	"net/http"
+	"time"
 )
 
-func Subtitle(ctx *gin.Context)  {
+// Get theater subtitles from grpc.theater service
+func Subtitles(ctx *gin.Context) {
 
-	//var (
-	//
-	//	database = db.Connection
-	//	user     = ctx.MustGet("user").(*models.User)
-	//
-	//	rules = govalidator.MapData{
-	//		"lang":           []string{"required", "min:4", "max:30"},
-	//		"file:subtitle":  []string{"required", "ext:srt", "size:20000000"},
-	//		"theater_id":     []string{"required"},
-	//	}
-	//
-	//	opts = govalidator.Options{
-	//		Request:         ctx.Request,
-	//		Rules:           rules,
-	//		RequiredDefault: true,
-	//	}
-	//)
-	//
-	//if validate := govalidator.New(opts).Validate(); validate.Encode() != "" {
-	//
-	//	validations := components.GetValidationErrorsFromGoValidator(validate)
-	//	ctx.JSON(respond.Default.ValidationErrors(validations))
-	//	return
-	//}
-	//
-	//var (
-	//	count int
-	//	theater = new(models.Theater)
-	//)
-	//
-	//database.Where(map[string] interface{} {
-	//	"id": ctx.Request.Form.Get("theater_id"),
-	//	"user_id": user.ID,
-	//}).Find(theater).Count(&count)
-	//
-	//if count == 0 {
-	//
-	//	ctx.JSON(respond.Default.SetStatusCode(http.StatusNotFound).
-	//		SetStatusText("Failed!").
-	//		RespondWithMessage("Could not found the theater!"))
-	//	return
-	//}
-	//
-	//database.Model(theater).Related(&theater.Movie)
-	//
-	//var randomSubtitleName string
-	//
-	//if _, subtitleFile, err := ctx.Request.FormFile("subtitle"); err == nil {
-	//
-	//	randomSubtitleName = strings.RandomNumber(20)
-	//
-	//	if err := ctx.SaveUploadedFile(subtitleFile, fmt.Sprintf("./storage/uploads/subtitles/%s.srt", randomSubtitleName)); err != nil {
-	//
-	//		ctx.JSON(respond.Default.
-	//			SetStatusText("Failed!").
-	//			SetStatusCode(400).
-	//			RespondWithMessage("Upload failed. Please try again later!"))
-	//		return
-	//	}
-	//}
-	//
-	//subtitle := &models.Subtitle{
-	//	Lang:     ctx.Request.Form.Get("lang"),
-	//	File:     randomSubtitleName,
-	//	Movie:    theater.Movie,
-	//}
-	//
-	//if database = database.Create(subtitle); database.Error != nil {
-	//
-	//	ctx.JSON(respond.Default.Error(500, 5445))
-	//	return
-	//}
-	//
-	//ctx.JSON(respond.Default.Succeed(subtitle))
-	//return
+	var (
+		subtitles  = make([]*proto.Subtitle, 0)
+		token      = ctx.Request.Header.Get("Authorization")
+		mCtx, _    = context.WithTimeout(ctx, 10 * time.Second)
+	)
+
+	response, err := grpc.TheaterServiceClient.GetSubtitles(mCtx, &proto.TheaterAuthRequest{
+		Theater: &proto.Theater{
+			Id: ctx.Param("theater_id"),
+		},
+		AuthRequest: &proto.AuthenticateRequest{
+			Token: []byte(token),
+		},
+	})
+
+	if err != nil || response.Code != http.StatusOK {
+		ctx.JSON(respond.Default.NotFound())
+		return
+	}
+
+	if response.Result != nil {
+		subtitles = response.Result
+	}
+
+	ctx.JSON(respond.Default.Succeed(subtitles))
+	return
+}
+
+// Send request to grpc for adding subtitle to theater
+func AddSubtitle(ctx *gin.Context) {
+
+	var (
+		rules = govalidator.MapData{
+			"lang":           []string{"required", "min:4", "max:30"},
+			"file:subtitle":  []string{"required", "ext:srt", "size:20000000"},
+		}
+		opts = govalidator.Options{
+			Request:         ctx.Request,
+			Rules:           rules,
+			RequiredDefault: true,
+		}
+		token      = ctx.Request.Header.Get("Authorization")
+		mCtx, _    = context.WithTimeout(ctx, 10 * time.Second)
+	)
+
+	if validate := govalidator.New(opts).Validate(); validate.Encode() != "" {
+
+		validations := components.GetValidationErrorsFromGoValidator(validate)
+		ctx.JSON(respond.Default.ValidationErrors(validations))
+		return
+	}
+
+	if subtitleFile, err := ctx.FormFile("subtitle"); err == nil {
+
+		file, err := subtitle.Save(subtitleFile)
+		if err != nil {
+
+			sentry.CaptureException(err)
+
+			ctx.JSON(respond.Default.
+				SetStatusText("Failed!").
+				SetStatusCode(400).
+				RespondWithMessage("Upload failed. Please try again later!"))
+			return
+		}
+
+		response, err := grpc.TheaterServiceClient.AddSubtitle(mCtx, &proto.AddOrRemoveSubtitleRequest{
+			Subtitle: &proto.Subtitle{
+				TheaterId:  ctx.Param("theater_id"),
+				Lang:       ctx.PostForm("lang"),
+				File:       file.Name(),
+			},
+			AuthRequest: &proto.AuthenticateRequest{
+				Token: []byte(token),
+			},
+		})
+
+		if err != nil || response.Code != http.StatusOK {
+			ctx.JSON(respond.Default.SetStatusText("failed").
+				SetStatusCode(http.StatusBadRequest).
+				RespondWithMessage("Could not add subtitle, please try again later!"))
+			return
+		}
+
+		ctx.JSON(respond.Default.InsertSucceeded())
+		return
+	}
+
+	ctx.JSON(respond.Default.SetStatusText("failed").
+		SetStatusCode(http.StatusBadRequest).
+		RespondWithMessage("Could not add subtitle, please try again later!"))
+	return
 }

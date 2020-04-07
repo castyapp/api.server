@@ -3,8 +3,9 @@ module github.com/CastyLab/api.server
 go 1.14
 
 require (
-	github.com/CastyLab/grpc.proto v0.0.0-20200405175143-ddc5f6e1bc03
+	github.com/CastyLab/grpc.proto v0.0.0-20200407024720-286b979cea82
 	github.com/MrJoshLab/go-respond v0.0.0-20191125172458-25d4d18aaa1b
+	github.com/asticode/go-astisub v0.2.0
 	github.com/getsentry/sentry-go v0.5.1
 	github.com/gin-gonic/gin v1.5.0
 	github.com/joho/godotenv v1.3.0
