@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/CastyLab/api.server/app/components"
 	"github.com/CastyLab/api.server/grpc"
+	"github.com/CastyLab/api.server/internal"
 	"github.com/CastyLab/grpc.proto/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
@@ -23,6 +24,7 @@ func SendFriendRequest(ctx *gin.Context) {
 			Rules:           rules,
 			RequiredDefault: true,
 		}
+		friendId = ctx.PostForm("friend_id")
 	)
 
 	if validate := govalidator.New(opts).Validate(); validate.Encode() != "" {
@@ -35,7 +37,7 @@ func SendFriendRequest(ctx *gin.Context) {
 	mCtx, _ := context.WithTimeout(ctx, 20 * time.Second)
 
 	response, err := grpc.UserServiceClient.SendFriendRequest(mCtx, &proto.FriendRequest{
-		FriendId: ctx.PostForm("friend_id"),
+		FriendId: friendId,
 		AuthRequest: &proto.AuthenticateRequest{
 			Token: []byte(ctx.Request.Header.Get("Authorization")),
 		},
@@ -55,6 +57,10 @@ func SendFriendRequest(ctx *gin.Context) {
 			RespondWithMessage("Friend request sent already!"))
 		return
 	case http.StatusOK:
+
+		// send a new notification event to friend
+		_ = internal.Client.UserService.SendNewNotificationsEvent(friendId)
+
 		ctx.JSON(respond.Default.InsertSucceeded())
 		return
 	default:

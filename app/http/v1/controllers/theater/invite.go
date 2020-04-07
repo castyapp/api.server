@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/CastyLab/api.server/app/http/v1/requests"
 	"github.com/CastyLab/api.server/grpc"
+	"github.com/CastyLab/api.server/internal"
 	"github.com/CastyLab/grpc.proto/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
@@ -54,8 +55,11 @@ func Invite(ctx *gin.Context)  {
 		return
 	}
 
-	ctx.JSON(respond.Default.SetStatusCode(200).
-		SetStatusText("success").
-		RespondWithMessage("Invitations sent successfully!"))
+	for _, friendId := range request.FriendIDs {
+		// send a new notification event to friend
+		_ = internal.Client.UserService.SendNewNotificationsEvent(friendId)
+	}
+
+	ctx.JSON(respond.Default.Succeed(response.Result[0]))
 	return
 }

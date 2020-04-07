@@ -24,7 +24,7 @@ func getEnvBool(key string) bool {
 
 func (a *Application) RegisterProviders() {
 
-	a.router = gin.Default()
+	a.router = gin.New()
 	a.router.Use(middlewares.CORSMiddleware)
 
 	gin.SetMode(gin.ReleaseMode)
