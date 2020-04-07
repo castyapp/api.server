@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/CastyLab/api.server/app/components"
 	"github.com/CastyLab/api.server/grpc"
-	"github.com/CastyLab/api.server/internal"
 	"github.com/CastyLab/grpc.proto/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
@@ -57,10 +56,6 @@ func SendFriendRequest(ctx *gin.Context) {
 			RespondWithMessage("Friend request sent already!"))
 		return
 	case http.StatusOK:
-
-		// send a new notification event to friend
-		_ = internal.Client.UserService.SendNewNotificationsEvent(friendId)
-
 		ctx.JSON(respond.Default.InsertSucceeded())
 		return
 	default:
