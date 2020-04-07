@@ -46,6 +46,7 @@ func (a *Application) RegisterRoutes()  {
 
 			authUserGroup.GET("@theaters/:theater_id/subtitles", theater.Subtitles)
 			authUserGroup.POST("@theaters/:theater_id/subtitles", theater.AddSubtitle)
+			authUserGroup.DELETE("@theaters/:theater_id/subtitles/:subtitle_id", theater.RemoveSubtitle)
 
 			authUserGroup.POST("@theaters/:theater_id/invite", theater.Invite)
 			

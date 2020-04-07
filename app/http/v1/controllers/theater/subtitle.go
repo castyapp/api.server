@@ -110,3 +110,30 @@ func AddSubtitle(ctx *gin.Context) {
 		RespondWithMessage("Could not add subtitle, please try again later!"))
 	return
 }
+
+// Send request to grpc for removing subtitle from theater
+func RemoveSubtitle(ctx *gin.Context) {
+
+	var (
+		token      = ctx.Request.Header.Get("Authorization")
+		mCtx, _    = context.WithTimeout(ctx, 10 * time.Second)
+	)
+
+	response, err := grpc.TheaterServiceClient.RemoveSubtitle(mCtx, &proto.AddOrRemoveSubtitleRequest{
+		Subtitle: &proto.Subtitle{
+			Id: ctx.Param("subtitle_id"),
+			TheaterId: ctx.Param("theater_id"),
+		},
+		AuthRequest: &proto.AuthenticateRequest{
+			Token: []byte(token),
+		},
+	})
+
+	if err != nil || response.Code != http.StatusOK {
+		ctx.JSON(respond.Default.NotFound())
+		return
+	}
+
+	ctx.JSON(respond.Default.DeleteSucceeded())
+	return
+}
