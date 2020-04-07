@@ -94,6 +94,9 @@ func Create(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(respond.Default.InsertSucceeded())
+	ctx.JSON(respond.Default.Succeed(map[string] interface{} {
+		"status": "OK",
+		"result": string(response.Result),
+	}))
 	return
 }
