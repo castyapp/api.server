@@ -71,7 +71,7 @@ func AddSubtitle(ctx *gin.Context) {
 
 	if subtitleFile, err := ctx.FormFile("subtitle"); err == nil {
 
-		file, err := subtitle.Save(subtitleFile)
+		filename, err := subtitle.Save(subtitleFile)
 		if err != nil {
 
 			sentry.CaptureException(err)
@@ -87,7 +87,7 @@ func AddSubtitle(ctx *gin.Context) {
 			Subtitle: &proto.Subtitle{
 				TheaterId:  ctx.Param("theater_id"),
 				Lang:       ctx.PostForm("lang"),
-				File:       file.Name(),
+				File:       filename,
 			},
 			AuthRequest: &proto.AuthenticateRequest{
 				Token: []byte(token),

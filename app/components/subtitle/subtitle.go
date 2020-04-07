@@ -31,28 +31,28 @@ func ConvertToVTT(file multipart.File) (buffer *bytes.Buffer, err error) {
 	return buffer, nil
 }
 
-func Save(sFile *multipart.FileHeader) (file *os.File, err error) {
+func Save(sFile *multipart.FileHeader) (string, error) {
+
+	subtitleName := strings.RandomNumber(20)
 
 	subtitle, err := sFile.Open()
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	buf, err := ConvertToVTT(subtitle)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	subtitleName := strings.RandomNumber(20)
-
-	file, err = os.Create(fmt.Sprintf("./storage/uploads/subtitles/%s.vtt", subtitleName))
+	file, err := os.Create(fmt.Sprintf("./storage/uploads/subtitles/%s.vtt", subtitleName))
 	if err != nil {
-		return
+		return "", err
 	}
 
 	if _, err := file.Write(buf.Bytes()); err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return file, nil
+	return subtitleName, nil
 }
