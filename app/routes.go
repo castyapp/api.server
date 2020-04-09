@@ -41,7 +41,7 @@ func (a *Application) RegisterRoutes()  {
 			// theater routes
 			authUserGroup.POST("@theaters", theater.Create)
 			authUserGroup.GET("@theaters", theater.Index)
-			authUserGroup.GET("@theaters/shared", theater.GetSharedTheaters)
+			authUserGroup.GET("@shared_theaters", theater.GetSharedTheaters)
 			authUserGroup.GET("@theaters/:theater_id", theater.Get)
 			authUserGroup.DELETE("@theaters/:theater_id", theater.Remove)
 
