@@ -21,7 +21,6 @@ func Update(ctx *gin.Context)  {
 		protoUser = new(proto.User)
 		token = ctx.Request.Header.Get("Authorization")
 		rules = govalidator.MapData{
-			"fullname":     []string{"min:4", "max:30"},
 			"file:avatar":  []string{"ext:jpg,jpeg,png", "size:2000000"},
 		}
 		opts = govalidator.Options{
@@ -30,7 +29,6 @@ func Update(ctx *gin.Context)  {
 			RequiredDefault: true,
 		}
 		fullname = ctx.PostForm("fullname")
-		avatar   = ctx.PostForm("avatar")
 	)
 
 	if validate := govalidator.New(opts).Validate(); validate.Encode() != "" {
@@ -41,7 +39,7 @@ func Update(ctx *gin.Context)  {
 	}
 
 	if avatarFile, err := ctx.FormFile("avatar"); err == nil {
-		avatar = strings.RandomNumber(20)
+		avatar := strings.RandomNumber(20)
 		if err := ctx.SaveUploadedFile(avatarFile, fmt.Sprintf("./storage/uploads/avatars/%s.png", avatar)); err != nil {
 			sentry.CaptureException(err)
 			ctx.JSON(respond.Default.
@@ -72,4 +70,50 @@ func Update(ctx *gin.Context)  {
 
 	ctx.JSON(respond.Default.Succeed(response.Result))
 	return
+}
+
+func UpdatePassword(ctx *gin.Context) {
+
+	var (
+		token = ctx.Request.Header.Get("Authorization")
+		rules = govalidator.MapData{
+			"current_password":     []string{"required"},
+			"new_password":         []string{"required"},
+			"verify_new_password":  []string{"required"},
+		}
+		opts = govalidator.Options{
+			Request:         ctx.Request,
+			Rules:           rules,
+			RequiredDefault: true,
+		}
+	)
+
+	if validate := govalidator.New(opts).Validate(); validate.Encode() != "" {
+		validations := components.GetValidationErrorsFromGoValidator(validate)
+		ctx.JSON(respond.Default.ValidationErrors(validations))
+		return
+	}
+
+	mCtx, _ := context.WithTimeout(ctx, 20 * time.Second)
+	response, err := grpc.UserServiceClient.UpdatePassword(mCtx, &proto.UpdatePasswordRequest{
+		AuthRequest: &proto.AuthenticateRequest{
+			Token: []byte(token),
+		},
+		CurrentPassword: ctx.PostForm("current_password"),
+		NewPassword: ctx.PostForm("new_password"),
+		VerifyNewPassword: ctx.PostForm("verify_new_password"),
+	})
+
+	if err != nil || response.Code != http.StatusOK {
+		ctx.JSON(respond.Default.SetStatusText("Failed").
+			SetStatusCode(http.StatusBadRequest).
+			RespondWithMessage("Invalid Credentials!"))
+		return
+	}
+
+	ctx.JSON(respond.Default.SetStatusText("Success").
+		SetStatusCode(http.StatusOK).
+		RespondWithMessage("Password updated successfully!"))
+	return
+
 }

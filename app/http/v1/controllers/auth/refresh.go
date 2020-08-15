@@ -5,6 +5,7 @@ import (
 	"github.com/CastyLab/grpc.proto/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 	"strings"
 )
@@ -26,6 +27,8 @@ func Refresh(ctx *gin.Context) {
 	})
 
 	if err != nil || response.Code != http.StatusOK {
+
+		log.Println(err, response)
 
 		ctx.JSON(respond.Default.SetStatusCode(401).
 			SetStatusText("failed").

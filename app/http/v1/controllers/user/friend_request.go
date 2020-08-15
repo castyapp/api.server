@@ -15,30 +15,15 @@ import (
 func SendFriendRequest(ctx *gin.Context) {
 
 	var (
-		rules = govalidator.MapData{
-			"friend_id": []string{"required"},
-		}
-		opts = govalidator.Options{
-			Request:         ctx.Request,
-			Rules:           rules,
-			RequiredDefault: true,
-		}
-		friendId = ctx.PostForm("friend_id")
+		friendId = ctx.Param("friend_id")
+		mCtx, _  = context.WithTimeout(ctx, 20 * time.Second)
+		token    = ctx.Request.Header.Get("Authorization")
 	)
-
-	if validate := govalidator.New(opts).Validate(); validate.Encode() != "" {
-
-		validations := components.GetValidationErrorsFromGoValidator(validate)
-		ctx.JSON(respond.Default.ValidationErrors(validations))
-		return
-	}
-
-	mCtx, _ := context.WithTimeout(ctx, 20 * time.Second)
 
 	response, err := grpc.UserServiceClient.SendFriendRequest(mCtx, &proto.FriendRequest{
 		FriendId: friendId,
 		AuthRequest: &proto.AuthenticateRequest{
-			Token: []byte(ctx.Request.Header.Get("Authorization")),
+			Token: []byte(token),
 		},
 	})
 

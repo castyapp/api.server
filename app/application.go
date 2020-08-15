@@ -37,11 +37,11 @@ func (a *Application) RegisterProviders() {
 
 	// register unique validator
 	govalidator.AddCustomRule("access", validators.Access)
+	govalidator.AddCustomRule("media_source_uri", validators.MediaSourceUri)
 }
 
-func (a *Application) RegisterAndServeRouter()  {
+func (a *Application) RegisterAndServeRouter(port int)  {
 	a.RegisterRoutes(); {
-		port := 9002
 		log.Printf("Server running and listening on port [%d]", port)
 		if err := a.router.Run(fmt.Sprintf(":%d", port)); err != nil {
 			sentry.CaptureException(err)

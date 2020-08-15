@@ -7,7 +7,6 @@ import (
 	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
 	"github.com/thedevsaddam/govalidator"
-	"net/http"
 )
 
 func Search(ctx *gin.Context) {
@@ -39,9 +38,8 @@ func Search(ctx *gin.Context) {
 		Keyword: keyword,
 	})
 
-	if err != nil || response.Code != http.StatusOK {
-
-		ctx.JSON(respond.Default.NotFound())
+	if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
+		ctx.JSON(code, result)
 		return
 	}
 

@@ -10,6 +10,7 @@ import (
 	"github.com/getsentry/sentry-go"
 	"github.com/gin-gonic/gin"
 	"github.com/thedevsaddam/govalidator"
+	"log"
 	"net/http"
 	"time"
 )
@@ -19,21 +20,24 @@ func Subtitles(ctx *gin.Context) {
 
 	var (
 		subtitles  = make([]*proto.Subtitle, 0)
-		token      = ctx.Request.Header.Get("Authorization")
 		mCtx, _    = context.WithTimeout(ctx, 10 * time.Second)
 	)
 
-	response, err := grpc.TheaterServiceClient.GetSubtitles(mCtx, &proto.TheaterAuthRequest{
-		Theater: &proto.Theater{
-			Id: ctx.Param("theater_id"),
+	req := &proto.MediaSourceAuthRequest{
+		Media: &proto.MediaSource{
+			Id: ctx.Param("id"),
 		},
-		AuthRequest: &proto.AuthenticateRequest{
-			Token: []byte(token),
-		},
-	})
+	}
 
-	if err != nil || response.Code != http.StatusOK {
-		ctx.JSON(respond.Default.NotFound())
+	if token := ctx.Request.Header.Get("Authorization"); token != "" {
+		req.AuthRequest = &proto.AuthenticateRequest{
+			Token: []byte(token),
+		}
+	}
+
+	response, err := grpc.TheaterServiceClient.GetSubtitles(mCtx, req)
+	if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
+		ctx.JSON(code, result)
 		return
 	}
 
@@ -63,7 +67,6 @@ func AddSubtitle(ctx *gin.Context) {
 	)
 
 	if validate := govalidator.New(opts).Validate(); validate.Encode() != "" {
-
 		validations := components.GetValidationErrorsFromGoValidator(validate)
 		ctx.JSON(respond.Default.ValidationErrors(validations))
 		return
@@ -73,9 +76,8 @@ func AddSubtitle(ctx *gin.Context) {
 
 		filename, err := subtitle.Save(subtitleFile)
 		if err != nil {
-
+			log.Println(err)
 			sentry.CaptureException(err)
-
 			ctx.JSON(respond.Default.
 				SetStatusText("Failed!").
 				SetStatusCode(400).
@@ -83,11 +85,13 @@ func AddSubtitle(ctx *gin.Context) {
 			return
 		}
 
-		response, err := grpc.TheaterServiceClient.AddSubtitle(mCtx, &proto.AddOrRemoveSubtitleRequest{
-			Subtitle: &proto.Subtitle{
-				TheaterId:  ctx.Param("theater_id"),
-				Lang:       ctx.PostForm("lang"),
-				File:       filename,
+		response, err := grpc.TheaterServiceClient.AddSubtitles(mCtx, &proto.AddSubtitlesRequest{
+			MediaSourceId: ctx.Param("id"),
+			Subtitles: []*proto.Subtitle{
+				{
+					Lang: ctx.PostForm("lang"),
+					File: filename,
+				},
 			},
 			AuthRequest: &proto.AuthenticateRequest{
 				Token: []byte(token),
@@ -119,11 +123,9 @@ func RemoveSubtitle(ctx *gin.Context) {
 		mCtx, _    = context.WithTimeout(ctx, 10 * time.Second)
 	)
 
-	response, err := grpc.TheaterServiceClient.RemoveSubtitle(mCtx, &proto.AddOrRemoveSubtitleRequest{
-		Subtitle: &proto.Subtitle{
-			Id: ctx.Param("subtitle_id"),
-			TheaterId: ctx.Param("theater_id"),
-		},
+	response, err := grpc.TheaterServiceClient.RemoveSubtitle(mCtx, &proto.RemoveSubtitleRequest{
+		SubtitleId: ctx.Param("subtitle_id"),
+		MediaSourceId: ctx.Param("id"),
 		AuthRequest: &proto.AuthenticateRequest{
 			Token: []byte(token),
 		},

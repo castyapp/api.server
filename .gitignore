@@ -9,3 +9,5 @@
 !/storage/uploads/subtitles/.gitkeep
 /storage/uploads/posters/*
 !/storage/uploads/posters/.gitkeep
+!/storage/uploads/media/.gitkeep
+/storage/uploads/media/*

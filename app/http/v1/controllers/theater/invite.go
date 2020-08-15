@@ -43,7 +43,7 @@ func Invite(ctx *gin.Context)  {
 		AuthRequest: &proto.AuthenticateRequest{
 			Token: []byte(token),
 		},
-		TheaterId: ctx.Param("theater_id"),
+		TheaterId: ctx.Param("id"),
 		FriendIds: request.FriendIDs,
 	})
 

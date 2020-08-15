@@ -1,11 +1,11 @@
 package messages
 
 import (
+	"github.com/CastyLab/api.server/app/components"
 	"github.com/CastyLab/api.server/grpc"
 	"github.com/CastyLab/grpc.proto/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 func Messages(ctx *gin.Context)  {
@@ -22,11 +22,9 @@ func Messages(ctx *gin.Context)  {
 		ReceiverId: receiverId,
 	})
 
-	if err != nil || response.Code != http.StatusOK {
-
-		ctx.JSON(respond.Default.SetStatusText("failed").
-			SetStatusCode(500).
-			RespondWithMessage("Could not get messages!"))
+	code, result, ok := components.ParseGrpcErrorResponse(err)
+	if !ok {
+		ctx.JSON(code, result)
 		return
 	}
 

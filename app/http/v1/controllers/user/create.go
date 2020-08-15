@@ -19,8 +19,8 @@ func Create(ctx *gin.Context)  {
 	var (
 		rules = govalidator.MapData{
 			"fullname":                 []string{"min:4", "max:30"},
-			"password":                 []string{"required", "min:4", "max:30"},
-			"password_confirmation":    []string{"required", "min:4", "max:30"},
+			"password":                 []string{"required", "min:4", "max:80"},
+			"password_confirmation":    []string{"required", "min:4", "max:80"},
 			"username":                 []string{"required", "between:3,20"},
 			"email":                    []string{"required", "email"},
 			"g-recaptcha-response":     []string{"required"},
@@ -79,7 +79,7 @@ func Create(ctx *gin.Context)  {
 	}
 
 	if err != nil || response == nil || response.Code != http.StatusOK {
-		ctx.JSON(respond.Default.SetStatusCode(420).
+		ctx.JSON(respond.Default.SetStatusCode(http.StatusInternalServerError).
 			SetStatusText("failed").
 			RespondWithMessage("Could not create user."))
 		return

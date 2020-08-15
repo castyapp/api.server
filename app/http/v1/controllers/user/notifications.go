@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"github.com/CastyLab/api.server/app/components"
 	"github.com/CastyLab/api.server/grpc"
 	"github.com/CastyLab/grpc.proto/proto"
 	"github.com/MrJoshLab/go-respond"
@@ -22,11 +23,8 @@ func Notifications(ctx *gin.Context)  {
 		Token: []byte(token),
 	})
 
-	if err != nil || response.Code != http.StatusOK {
-
-		ctx.JSON(respond.Default.SetStatusText("failed").
-			SetStatusCode(500).
-			RespondWithMessage("Could not get notifications!"))
+	if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
+		ctx.JSON(code, result)
 		return
 	}
 
@@ -52,14 +50,12 @@ func ReadAllNotifications(ctx *gin.Context)  {
 		mCtx, _ = context.WithTimeout(ctx, 20 * time.Second)
 	)
 
-	response, err := grpc.UserServiceClient.ReadAllNotifications(mCtx, &proto.AuthenticateRequest{
+	_, err := grpc.UserServiceClient.ReadAllNotifications(mCtx, &proto.AuthenticateRequest{
 		Token: []byte(token),
 	})
 
-	if err != nil || response.Code != http.StatusOK {
-		ctx.JSON(respond.Default.SetStatusText("failed").
-			SetStatusCode(500).
-			RespondWithMessage("Could not update notifications!"))
+	if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
+		ctx.JSON(code, result)
 		return
 	}
 

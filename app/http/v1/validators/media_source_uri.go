@@ -3,9 +3,10 @@ package validators
 import (
 	"errors"
 	"fmt"
+	"net/url"
 )
 
-func Access(field string, _ string, _ string, value interface{}) error {
+func MediaSourceUri(field string, _ string, _ string, value interface{}) error {
 
 	val := value.(string)
 
@@ -13,8 +14,7 @@ func Access(field string, _ string, _ string, value interface{}) error {
 		return nil
 	}
 
-	switch val {
-	case "1", "2", "3":
+	if _, err := url.ParseRequestURI(val); err == nil {
 		return nil
 	}
 

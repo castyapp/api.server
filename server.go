@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"github.com/CastyLab/api.server/app"
 	"github.com/getsentry/sentry-go"
 	_ "github.com/joho/godotenv/autoload"
@@ -12,6 +13,9 @@ import (
 func main() {
 
 	log.SetFlags(log.Lshortfile)
+
+	port := flag.Int("port", 9002, "Casty http api port")
+	flag.Parse()
 
 	if err := sentry.Init(sentry.ClientOptions{ Dsn: os.Getenv("SENTRY_DSN") }); err != nil {
 		log.Fatal(err)
@@ -26,5 +30,5 @@ func main() {
 	application.RegisterProviders()
 
 	// register router and serve
-	application.RegisterAndServeRouter()
+	application.RegisterAndServeRouter(*port)
 }
