@@ -92,7 +92,7 @@ func (a *Application) RegisterRoutes()  {
 		userGroup := v1.Group("user"); {
 			// create a new user
 			userGroup.POST("@create", user.Create)
-			userGroup.GET("@theater/:id", user.Theater)
+			userGroup.GET("@theater/:id", theater.Theater)
 			userGroup.GET("@theater/:id/subtitles", theater.Subtitles)
 		}
 
