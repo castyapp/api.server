@@ -1,4 +1,4 @@
-package user
+package theater
 
 import (
 	"context"
@@ -13,36 +13,6 @@ import (
 	"net/http"
 	"time"
 )
-
-// Get the current user from request
-func Theater(ctx *gin.Context) {
-
-	var (
-		token = ctx.Request.Header.Get("Authorization")
-		req   = new(proto.GetTheaterRequest)
-	)
-
-	if token != "" {
-		req = &proto.GetTheaterRequest{
-			AuthRequest: &proto.AuthenticateRequest{
-				Token: []byte(token),
-			},
-		}
-	}
-
-	if user := ctx.Param("id"); user != "" {
-		req.User = user
-	}
-
-	response, err := grpc.TheaterServiceClient.GetTheater(ctx, req)
-	if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
-		ctx.JSON(code, result)
-		return
-	}
-
-	ctx.JSON(respond.Default.Succeed(response.Result))
-	return
-}
 
 func GetMediaSources(ctx *gin.Context) {
 
@@ -70,6 +40,42 @@ func GetMediaSources(ctx *gin.Context) {
 	ctx.JSON(respond.Default.SetStatusText("success").
 		SetStatusCode(http.StatusOK).
 		RespondWithResult(mediaSources))
+	return
+}
+
+func DeleteMediaSource(ctx *gin.Context)  {
+
+	var (
+		rules = govalidator.MapData{
+			"source_id": []string{"required"},
+		}
+		opts = govalidator.Options{
+			Request:         ctx.Request,
+			Rules:           rules,
+			RequiredDefault: true,
+		}
+		token = ctx.Request.Header.Get("Authorization")
+	)
+
+	if validate := govalidator.New(opts).Validate(); validate.Encode() != "" {
+		validations := components.GetValidationErrorsFromGoValidator(validate)
+		ctx.JSON(respond.Default.ValidationErrors(validations))
+		return
+	}
+
+	_, err := grpc.TheaterServiceClient.RemoveMediaSource(ctx, &proto.MediaSourceRemoveRequest{
+		AuthRequest: &proto.AuthenticateRequest{
+			Token: []byte(token),
+		},
+		MediaSourceId: ctx.PostForm("source_id"),
+	})
+
+	if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
+		ctx.JSON(code, result)
+		return
+	}
+
+	ctx.JSON(respond.Default.UpdateSucceeded())
 	return
 }
 

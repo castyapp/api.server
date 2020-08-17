@@ -38,12 +38,13 @@ func (a *Application) RegisterRoutes()  {
 			authUserGroup.PUT("@password", user.UpdatePassword)
 
 			// Theater and media sources routes
-			authUserGroup.GET("@theater", user.Theater)
+			authUserGroup.GET("@theater", theater.Theater)
 			authUserGroup.PUT("@theater", theater.Update)
-			authUserGroup.POST("@media/select", user.SelectNewMediaSource)
-			authUserGroup.GET("@media", user.GetMediaSources)
-			authUserGroup.POST("@media", user.AddNewMediaSource)
-			authUserGroup.POST("@media/parse", user.ParseMediaSourceUri)
+			authUserGroup.POST("@media/select", theater.SelectNewMediaSource)
+			authUserGroup.GET("@media", theater.GetMediaSources)
+			authUserGroup.POST("@media", theater.AddNewMediaSource)
+			authUserGroup.DELETE("@media", theater.DeleteMediaSource)
+			authUserGroup.POST("@media/parse", theater.ParseMediaSourceUri)
 
 			// notifications routes
 			notifsGroup := authUserGroup.Group("@notifications"); {
