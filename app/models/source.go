@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	rnd "github.com/CastyLab/api.server/app/components/strings"
 	"github.com/CastyLab/grpc.proto/proto"
 	"github.com/knadh/go-get-youtube/youtube"
 	"net/http"
@@ -70,7 +71,6 @@ func (m *MediaSource) parseDownloadUri() error {
 
 	contentType := response.Header.Get("Content-Type")
 	switch contentType {
-	// valid types
 	case "video/mp4", "application/octet-stream":
 		m.proto.Type = proto.MediaSource_DOWNLOAD_URI
 		m.proto.Title = getMovieTitle(m.u)
@@ -78,6 +78,10 @@ func (m *MediaSource) parseDownloadUri() error {
 		if err == nil {
 			m.proto.Length = duration
 		}
+		return nil
+	case "audio/x-mpegurl", "application/vnd.apple.mpegurl":
+		m.proto.Type = proto.MediaSource_M3U8
+		m.proto.Title = rnd.Random(20)
 		return nil
 	default:
 		m.proto.Type = proto.MediaSource_UNKNOWN
@@ -162,9 +166,7 @@ func (m *MediaSource) Parse() error {
 		return err
 	}
 
-	domain := strings.ReplaceAll(u.Hostname(), "www.", "")
-
-	switch domain {
+	switch domain := strings.ReplaceAll(u.Hostname(), "www.", ""); domain {
 	case "youtube.com", "yt.com":
 		return m.parseYoutube()
 	default:
