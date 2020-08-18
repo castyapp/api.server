@@ -100,7 +100,7 @@ func SelectNewMediaSource(ctx *gin.Context)  {
 		return
 	}
 
-	_, err := grpc.TheaterServiceClient.SelectMediaSource(ctx, &proto.MediaSourceAuthRequest{
+	response, err := grpc.TheaterServiceClient.SelectMediaSource(ctx, &proto.MediaSourceAuthRequest{
 		AuthRequest: &proto.AuthenticateRequest{
 			Token: []byte(token),
 		},
@@ -114,7 +114,7 @@ func SelectNewMediaSource(ctx *gin.Context)  {
 		return
 	}
 
-	ctx.JSON(respond.Default.UpdateSucceeded())
+	ctx.JSON(respond.Default.Succeed(response.Result[0]))
 	return
 
 }
@@ -211,50 +211,10 @@ func AddNewMediaSource(ctx *gin.Context) {
 
 	// check for index files inside of torrent
 	if mediaSource.IsTorrent() {
-
 		ctx.JSON(respond.Default.SetStatusCode(http.StatusNotAcceptable).
 			SetStatusText("Failed").
 			RespondWithMessage("Torrent links are not available yet!"))
 		return
-
-		//index := ctx.PostForm("index")
-		//if index == "" {
-		//	ctx.JSON(respond.Default.Succeed(map[string] interface{} {
-		//		"message": "Index parameter is required in torrent media source!",
-		//		"code":    2342,
-		//		"data":    mediaSource,
-		//	}))
-		//	return
-		//}
-		//
-		//intI, err := strconv.Atoi(index)
-		//if err != nil {
-		//	ctx.JSON(respond.Default.SetStatusText("Failed").
-		//		SetStatusCode(http.StatusBadRequest).
-		//		RespondWithMessage("Index parameter is invalid!"))
-		//	return
-		//}
-		//
-		//var mediaFile *models.MediaFile
-		//for index := range mediaSource.Files {
-		//	if index == intI {
-		//		mediaFile = &mediaSource.Files[intI]
-		//	}
-		//}
-		//
-		//if mediaFile == nil {
-		//	ctx.JSON(respond.Default.SetStatusText("Failed").
-		//		SetStatusCode(http.StatusBadRequest).
-		//		RespondWithMessage("Index does not exists!"))
-		//	return
-		//}
-		//
-		//mediaFile.Download()
-		//
-		//log.Println(mediaFile)
-		//log.Println("Downloading torrent from index: [", intI, "] ...")
-		//return
-
 	}
 
 	protoMsg := mediaSource.Proto()
@@ -263,7 +223,7 @@ func AddNewMediaSource(ctx *gin.Context) {
 		protoMsg.Title = title
 	}
 
-	_, err = grpc.TheaterServiceClient.AddMediaSource(ctx, &proto.MediaSourceAuthRequest{
+	response, err := grpc.TheaterServiceClient.AddMediaSource(ctx, &proto.MediaSourceAuthRequest{
 		AuthRequest: &proto.AuthenticateRequest{
 			Token: []byte(token),
 		},
@@ -275,6 +235,6 @@ func AddNewMediaSource(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(respond.Default.Succeed(mediaSource.Proto()))
+	ctx.JSON(respond.Default.Succeed(response.Result[0]))
 	return
 }
