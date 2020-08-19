@@ -27,7 +27,7 @@ func ParseGrpcErrorResponse(err error) (code int, response interface{}, ok bool)
 		return
 	case codes.InvalidArgument:
 
-		if s, ok := status.FromError(err); ok {
+		if s, statusOK := status.FromError(err); statusOK {
 			validationErrors := make(map[string] interface{}, 0)
 			for _, validationErr := range s.Proto().Details {
 				validationErrors[validationErr.TypeUrl] = []string {
