@@ -11,12 +11,12 @@ func ParseGrpcErrorResponse(err error) (code int, response interface{}, ok bool)
 
 	switch statusCode := status.Code(err); statusCode {
 	case codes.OK:
-		return 200, nil, true
+		return http.StatusOK, nil, true
 	case codes.NotFound:
 		code, response = respond.Default.NotFound()
 		return
 	case codes.PermissionDenied:
-		code, response = respond.Default.SetStatusCode(403).
+		code, response = respond.Default.SetStatusCode(http.StatusForbidden).
 			SetStatusText("Failed!").
 			RespondWithMessage("Permission Denied!")
 		return
@@ -25,19 +25,28 @@ func ParseGrpcErrorResponse(err error) (code int, response interface{}, ok bool)
 			SetStatusText("Failed!").
 			RespondWithMessage("Unauthorized!")
 		return
-	default:
+	case codes.InvalidArgument:
 
-		if s, sok := status.FromError(err); sok {
-			code, response = respond.Default.SetStatusCode(http.StatusBadRequest).
+		if s, ok := status.FromError(err); ok {
+			validationErrors := make(map[string] interface{}, 0)
+			for _, validationErr := range s.Proto().Details {
+				validationErrors[validationErr.TypeUrl] = validationErr.Value
+			}
+			code, response = respond.Default.SetStatusCode(420).
 				SetStatusText("failed").
-				RespondWithMessage(s.Message())
+				RespondWithResult(validationErrors)
 			return
 		}
 
-		code, response = respond.Default.SetStatusCode(500).
+		code, response = respond.Default.SetStatusCode(420).
 			SetStatusText("failed").
-			RespondWithMessage("Internal server error!")
+			RespondWithMessage("Invalid arguments!")
+		return
+
+	default:
+		code, response = respond.Default.SetStatusCode(http.StatusInternalServerError).
+			SetStatusText("failed").
+			RespondWithMessage("Internal server error. Please try again later!")
 		return
 	}
-
 }

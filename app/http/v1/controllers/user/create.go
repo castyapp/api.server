@@ -72,25 +72,17 @@ func Create(ctx *gin.Context)  {
 		}
 	}
 
-	switch response.Code {
-	case http.StatusOK:
-		ctx.JSON(respond.Default.Succeed(map[string] interface{} {
-			"token": string(response.Token),
-			"refreshed_token": string(response.Token),
-			"type": "bearer",
-		}))
-		return
-	case 420:
-		valErrs := make(map[string] interface{})
-		for _, verr := range response.ValidationError {
-			valErrs[verr.Field] = verr.Errors
-		}
-		ctx.JSON(respond.Default.ValidationErrors(valErrs))
-		return
-	default:
+	if response.Code != http.StatusOK {
 		ctx.JSON(respond.Default.SetStatusCode(http.StatusInternalServerError).
 			SetStatusText("failed").
 			RespondWithMessage("Could not create user."))
 		return
 	}
+
+	ctx.JSON(respond.Default.Succeed(map[string] interface{} {
+		"token": string(response.Token),
+		"refreshed_token": string(response.Token),
+		"type": "bearer",
+	}))
+	return
 }
