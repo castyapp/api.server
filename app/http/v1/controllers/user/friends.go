@@ -6,7 +6,6 @@ import (
 	"github.com/CastyLab/grpc.proto/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 func GetPendingFriendRequests(ctx *gin.Context)  {
@@ -17,9 +16,11 @@ func GetPendingFriendRequests(ctx *gin.Context)  {
 		Token: []byte(ctx.Request.Header.Get("Authorization")),
 	})
 
-	if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
-		ctx.JSON(code, result)
-		return
+	if err != nil {
+		if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
+			ctx.JSON(code, result)
+			return
+		}
 	}
 
 	if response.Result != nil {
@@ -44,9 +45,11 @@ func GetFriend(ctx *gin.Context)  {
 		},
 	})
 
-	if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
-		ctx.JSON(code, result)
-		return
+	if err != nil {
+		if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
+			ctx.JSON(code, result)
+			return
+		}
 	}
 
 	ctx.JSON(respond.Default.Succeed(response.Result))
@@ -67,11 +70,11 @@ func GetFriendRequest(ctx *gin.Context)  {
 		},
 	})
 
-	if _, _, ok := components.ParseGrpcErrorResponse(err); !ok {
-		ctx.JSON(respond.Default.SetStatusText("failed").
-			SetStatusCode(http.StatusNotFound).
-			RespondWithMessage("Could not find friend request!"))
-		return
+	if err != nil {
+		if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
+			ctx.JSON(code, result)
+			return
+		}
 	}
 
 	ctx.JSON(respond.Default.Succeed(response))
@@ -85,11 +88,11 @@ func GetFriends(ctx *gin.Context)  {
 		Token: []byte(ctx.Request.Header.Get("Authorization")),
 	})
 
-	if _, _, ok := components.ParseGrpcErrorResponse(err); !ok {
-		ctx.JSON(respond.Default.SetStatusText("failed").
-			SetStatusCode(500).
-			RespondWithMessage("Could not get friends!"))
-		return
+	if err != nil {
+		if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
+			ctx.JSON(code, result)
+			return
+		}
 	}
 
 	if response.Result != nil {

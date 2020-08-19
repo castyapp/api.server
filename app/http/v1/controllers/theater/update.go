@@ -8,6 +8,7 @@ import (
 	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"net/http"
 	"strconv"
 )
 
@@ -36,7 +37,7 @@ func Update(ctx *gin.Context)  {
 		return
 	}
 
-	_, err = grpc.TheaterServiceClient.UpdateTheater(ctx, &proto.TheaterAuthRequest{
+	response, err := grpc.TheaterServiceClient.UpdateTheater(ctx, &proto.TheaterAuthRequest{
 		Theater: &proto.Theater{
 			Description: req.Description,
 			Privacy: req.Privacy,
@@ -47,8 +48,15 @@ func Update(ctx *gin.Context)  {
 		},
 	})
 
-	if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
-		ctx.JSON(code, result)
+	if err != nil {
+		if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
+			ctx.JSON(code, result)
+			return
+		}
+	}
+
+	if response.Code != http.StatusOK {
+		ctx.JSON(respond.Default.UpdateFailed())
 		return
 	}
 

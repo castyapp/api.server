@@ -39,7 +39,9 @@ func Callback(ctx *gin.Context)  {
 
 	if validate.Encode() == "" {
 
-		mCtx, _ := context.WithTimeout(ctx, 10 * time.Second)
+		mCtx, cancel := context.WithTimeout(ctx, 10 * time.Second)
+		defer cancel()
+
 		response, err := grpc.AuthServiceClient.CallbackOAUTH(mCtx, &proto.OAUTHRequest{
 			Code: ctx.PostForm("code"),
 			Service: service,

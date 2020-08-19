@@ -21,10 +21,6 @@ type MediaFile struct {
 	Size    int            `json:"size"`
 }
 
-func (mf *MediaFile) Download() {
-
-}
-
 type MediaSource struct {
 	u string
 	proto *proto.MediaSource
@@ -37,17 +33,6 @@ func (m *MediaSource) Proto() *proto.MediaSource {
 func NewMediaSource(uri string) *MediaSource {
 	return &MediaSource{u: uri}
 }
-
-//var (
-//	cErr error
-//	premiumSize int
-//	client *torrent.Client
-//)
-//
-//func init() {
-//	client, cErr = newTorrentClient()
-//	premiumSize, _ = strconv.Atoi(os.Getenv("PREMIUM_SIZE"))
-//}
 
 func (m *MediaSource) parseYoutube() error {
 	video, err := youtube.Get(m.u)
@@ -119,43 +104,6 @@ func getMovieDuration(uri string) (duration int64, err error) {
 	err = errors.New("could not get the duration parameter")
 	return
 }
-
-//func (m *MediaSource) parseTorrent() error {
-//	if cErr != nil {
-//		return cErr
-//	}
-//	t, err := client.AddMagnet(m.u)
-//	if err != nil {
-//		return err
-//	}
-//	m.Type = proto.MediaSource_TORRENT
-//	select {
-//	case <-t.GotInfo():
-//
-//		for index, file := range t.Files() {
-//			m.Files = append(m.Files, MediaFile{
-//				Id: strconv.Itoa(index),
-//				Title: file.Path(),
-//				Size: int(file.Length()),
-//				file: file,
-//			})
-//		}
-//
-//		if m.calcSize() > uint(premiumSize) {
-//			m.Premium = true
-//			m.PremiumText = "This source has more than 1GB files, You have to purchase premium to continue!"
-//		}
-//
-//	}
-//	return nil
-//}
-
-//func newTorrentClient() (*torrent.Client, error) {
-//	config := torrent.NewDefaultClientConfig()
-//	config.DataDir = "storage/uploads/media/"
-//	config.Logger = tLog.Default
-//	return torrent.NewClient(config)
-//}
 
 func (m *MediaSource) Parse() error {
 

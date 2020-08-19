@@ -28,10 +28,10 @@ func SendFriendRequest(ctx *gin.Context) {
 	})
 
 	if err != nil {
-		ctx.JSON(respond.Default.SetStatusCode(500).
-			SetStatusText("Failed!").
-			RespondWithMessage("Something went wrong, Please try again later!"))
-		return
+		if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
+			ctx.JSON(code, result)
+			return
+		}
 	}
 
 	switch response.Code {
@@ -73,7 +73,8 @@ func AcceptFriendRequest(ctx *gin.Context) {
 		return
 	}
 
-	mCtx, _ := context.WithTimeout(ctx, 20 * time.Second)
+	mCtx, cancel := context.WithTimeout(ctx, 20 * time.Second)
+	defer cancel()
 
 	response, err := grpc.UserServiceClient.AcceptFriendRequest(mCtx, &proto.FriendRequest{
 		RequestId: ctx.PostForm("request_id"),
@@ -83,10 +84,10 @@ func AcceptFriendRequest(ctx *gin.Context) {
 	})
 
 	if err != nil {
-		ctx.JSON(respond.Default.SetStatusCode(http.StatusBadRequest).
-			SetStatusText("Failed!").
-			RespondWithMessage("Something went wrong, Please try again later!"))
-		return
+		if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
+			ctx.JSON(code, result)
+			return
+		}
 	}
 
 	switch response.Code {

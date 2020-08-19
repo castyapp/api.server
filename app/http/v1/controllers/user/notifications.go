@@ -23,23 +23,23 @@ func Notifications(ctx *gin.Context)  {
 		Token: []byte(token),
 	})
 
-	if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
-		ctx.JSON(code, result)
-		return
+	if err != nil {
+		if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
+			ctx.JSON(code, result)
+			return
+		}
 	}
 
 	if response.Result != nil {
 		notifications = response.Result
 	}
 
-	result := map[string] interface{} {
-		"notifications": notifications,
-		"unread_count": response.UnreadCount,
-	}
-
 	ctx.JSON(respond.Default.SetStatusText("success").
 		SetStatusCode(http.StatusOK).
-		RespondWithResult(result))
+		RespondWithResult(map[string] interface{} {
+			"notifications": notifications,
+			"unread_count": response.UnreadCount,
+		}))
 	return
 }
 
@@ -50,12 +50,21 @@ func ReadAllNotifications(ctx *gin.Context)  {
 		mCtx, _ = context.WithTimeout(ctx, 20 * time.Second)
 	)
 
-	_, err := grpc.UserServiceClient.ReadAllNotifications(mCtx, &proto.AuthenticateRequest{
+	response, err := grpc.UserServiceClient.ReadAllNotifications(mCtx, &proto.AuthenticateRequest{
 		Token: []byte(token),
 	})
 
-	if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
-		ctx.JSON(code, result)
+	if err != nil {
+		if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
+			ctx.JSON(code, result)
+			return
+		}
+	}
+
+	if response.Code != http.StatusOK {
+		ctx.JSON(respond.Default.SetStatusCode(http.StatusBadRequest).
+			SetStatusText("failed").
+			RespondWithMessage("Could not real all notifications."))
 		return
 	}
 

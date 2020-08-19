@@ -25,7 +25,6 @@ func Search(ctx *gin.Context) {
 	)
 
 	if validate := govalidator.New(opts).Validate(); validate.Encode() != "" {
-
 		validations := components.GetValidationErrorsFromGoValidator(validate)
 		ctx.JSON(respond.Default.ValidationErrors(validations))
 		return
@@ -38,9 +37,11 @@ func Search(ctx *gin.Context) {
 		Keyword: keyword,
 	})
 
-	if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
-		ctx.JSON(code, result)
-		return
+	if err != nil {
+		if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
+			ctx.JSON(code, result)
+			return
+		}
 	}
 
 	if response.Result == nil {

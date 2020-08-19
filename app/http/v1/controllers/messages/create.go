@@ -40,15 +40,20 @@ func Create(ctx *gin.Context)  {
 		Content: ctx.PostForm("content"),
 	})
 
-	if err != nil || response.Code != http.StatusOK {
+	if err != nil {
+		code, result, ok := components.ParseGrpcErrorResponse(err)
+		if !ok {
+			ctx.JSON(code, result)
+			return
+		}
+	}
 
+	if response.Code != http.StatusOK {
 		ctx.JSON(respond.Default.SetStatusText("failed").
 			SetStatusCode(500).
 			RespondWithMessage("Could not send the message!"))
 		return
 	}
-
-	// Send message through websocket
 
 	ctx.JSON(respond.Default.SetStatusText("success").
 		SetStatusCode(http.StatusOK).

@@ -43,10 +43,12 @@ func Create(ctx *gin.Context) {
 			Pass: ctx.PostForm("pass"),
 		})
 
-		code, result, ok := components.ParseGrpcErrorResponse(err)
-		if !ok {
-			ctx.JSON(code, result)
-			return
+		if err != nil {
+			code, result, ok := components.ParseGrpcErrorResponse(err)
+			if !ok {
+				ctx.JSON(code, result)
+				return
+			}
 		}
 
 		ctx.JSON(respond.Default.Succeed(map[string] interface{} {

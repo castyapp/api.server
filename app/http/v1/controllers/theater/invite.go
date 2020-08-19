@@ -3,6 +3,7 @@ package theater
 import (
 	"context"
 	"encoding/json"
+	"github.com/CastyLab/api.server/app/components"
 	"github.com/CastyLab/api.server/app/http/v1/requests"
 	"github.com/CastyLab/api.server/grpc"
 	"github.com/CastyLab/grpc.proto/proto"
@@ -47,7 +48,14 @@ func Invite(ctx *gin.Context)  {
 		FriendIds: request.FriendIDs,
 	})
 
-	if err != nil || response.Code != http.StatusOK {
+	if err != nil {
+		if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
+			ctx.JSON(code, result)
+			return
+		}
+	}
+
+	if response.Code != http.StatusOK {
 		ctx.JSON(respond.Default.SetStatusCode(http.StatusBadRequest).
 			SetStatusText("failed").
 			RespondWithMessage("Could not send invitations, Please tray again later!"))

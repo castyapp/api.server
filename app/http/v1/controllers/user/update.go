@@ -55,7 +55,9 @@ func Update(ctx *gin.Context)  {
 		protoUser.Fullname = fullname
 	}
 
-	mCtx, _ := context.WithTimeout(ctx, 20 * time.Second)
+	mCtx, cancel := context.WithTimeout(ctx, 20 * time.Second)
+	defer cancel()
+
 	response, err := grpc.UserServiceClient.UpdateUser(mCtx, &proto.UpdateUserRequest{
 		AuthRequest: &proto.AuthenticateRequest{
 			Token: []byte(token),
@@ -63,7 +65,14 @@ func Update(ctx *gin.Context)  {
 		Result: protoUser,
 	})
 
-	if err != nil || response.Code != http.StatusOK {
+	if err != nil {
+		if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
+			ctx.JSON(code, result)
+			return
+		}
+	}
+
+	if response.Code != http.StatusOK {
 		ctx.JSON(respond.Default.Error(500, 5445))
 		return
 	}
@@ -94,7 +103,9 @@ func UpdatePassword(ctx *gin.Context) {
 		return
 	}
 
-	mCtx, _ := context.WithTimeout(ctx, 20 * time.Second)
+	mCtx, cancel := context.WithTimeout(ctx, 20 * time.Second)
+	defer cancel()
+
 	response, err := grpc.UserServiceClient.UpdatePassword(mCtx, &proto.UpdatePasswordRequest{
 		AuthRequest: &proto.AuthenticateRequest{
 			Token: []byte(token),
@@ -104,7 +115,14 @@ func UpdatePassword(ctx *gin.Context) {
 		VerifyNewPassword: ctx.PostForm("verify_new_password"),
 	})
 
-	if err != nil || response.Code != http.StatusOK {
+	if err != nil {
+		if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
+			ctx.JSON(code, result)
+			return
+		}
+	}
+
+	if response.Code != http.StatusOK {
 		ctx.JSON(respond.Default.SetStatusText("Failed").
 			SetStatusCode(http.StatusBadRequest).
 			RespondWithMessage("Invalid Credentials!"))
@@ -115,5 +133,4 @@ func UpdatePassword(ctx *gin.Context) {
 		SetStatusCode(http.StatusOK).
 		RespondWithMessage("Password updated successfully!"))
 	return
-
 }

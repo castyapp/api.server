@@ -25,9 +25,11 @@ func GetFollowedTheaters(ctx *gin.Context) {
 		Token: []byte(token),
 	})
 
-	if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
-		ctx.JSON(code, result)
-		return
+	if err != nil {
+		if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
+			ctx.JSON(code, result)
+			return
+		}
 	}
 
 	if response.Result != nil {
@@ -56,9 +58,11 @@ func Follow(ctx *gin.Context) {
 		},
 	})
 
-	if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
-		ctx.JSON(code, result)
-		return
+	if err != nil {
+		if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
+			ctx.JSON(code, result)
+			return
+		}
 	}
 
 	if response.Code == http.StatusOK {
@@ -92,9 +96,11 @@ func Unfollow(ctx *gin.Context)  {
 		},
 	})
 
-	if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
-		ctx.JSON(code, result)
-		return
+	if err != nil {
+		if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
+			ctx.JSON(code, result)
+			return
+		}
 	}
 
 	if response.Code == http.StatusOK {

@@ -29,9 +29,12 @@ func Theater(ctx *gin.Context) {
 	}
 
 	response, err := grpc.TheaterServiceClient.GetTheater(ctx, req)
-	if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
-		ctx.JSON(code, result)
-		return
+
+	if err != nil {
+		if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
+			ctx.JSON(code, result)
+			return
+		}
 	}
 
 	ctx.JSON(respond.Default.Succeed(response.Result))

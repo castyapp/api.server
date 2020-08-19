@@ -28,9 +28,11 @@ func GetMediaSources(ctx *gin.Context) {
 		},
 	})
 
-	if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
-		ctx.JSON(code, result)
-		return
+	if err != nil {
+		if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
+			ctx.JSON(code, result)
+			return
+		}
 	}
 
 	if response.Result != nil {
@@ -63,15 +65,24 @@ func DeleteMediaSource(ctx *gin.Context)  {
 		return
 	}
 
-	_, err := grpc.TheaterServiceClient.RemoveMediaSource(ctx, &proto.MediaSourceRemoveRequest{
+	response, err := grpc.TheaterServiceClient.RemoveMediaSource(ctx, &proto.MediaSourceRemoveRequest{
 		AuthRequest: &proto.AuthenticateRequest{
 			Token: []byte(token),
 		},
 		MediaSourceId: ctx.PostForm("source_id"),
 	})
 
-	if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
-		ctx.JSON(code, result)
+	if err != nil {
+		if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
+			ctx.JSON(code, result)
+			return
+		}
+	}
+
+	if response.Code != http.StatusOK {
+		ctx.JSON(respond.Default.SetStatusCode(http.StatusBadRequest).
+			SetStatusText("failed").
+			RespondWithMessage("Could not delete media source!"))
 		return
 	}
 
@@ -109,9 +120,11 @@ func SelectNewMediaSource(ctx *gin.Context)  {
 		},
 	})
 
-	if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
-		ctx.JSON(code, result)
-		return
+	if err != nil {
+		if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
+			ctx.JSON(code, result)
+			return
+		}
 	}
 
 	ctx.JSON(respond.Default.Succeed(response.Result[0]))
@@ -230,9 +243,11 @@ func AddNewMediaSource(ctx *gin.Context) {
 		Media: protoMsg,
 	})
 
-	if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
-		ctx.JSON(code, result)
-		return
+	if err != nil {
+		if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
+			ctx.JSON(code, result)
+			return
+		}
 	}
 
 	ctx.JSON(respond.Default.Succeed(response.Result[0]))

@@ -36,9 +36,12 @@ func Subtitles(ctx *gin.Context) {
 	}
 
 	response, err := grpc.TheaterServiceClient.GetSubtitles(mCtx, req)
-	if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
-		ctx.JSON(code, result)
-		return
+
+	if err != nil {
+		if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
+			ctx.JSON(code, result)
+			return
+		}
 	}
 
 	if response.Result != nil {
@@ -98,7 +101,14 @@ func AddSubtitle(ctx *gin.Context) {
 			},
 		})
 
-		if err != nil || response.Code != http.StatusOK {
+		if err != nil {
+			if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
+				ctx.JSON(code, result)
+				return
+			}
+		}
+
+		if response.Code != http.StatusOK {
 			ctx.JSON(respond.Default.SetStatusText("failed").
 				SetStatusCode(http.StatusBadRequest).
 				RespondWithMessage("Could not add subtitle, please try again later!"))
@@ -131,7 +141,14 @@ func RemoveSubtitle(ctx *gin.Context) {
 		},
 	})
 
-	if err != nil || response.Code != http.StatusOK {
+	if err != nil {
+		if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
+			ctx.JSON(code, result)
+			return
+		}
+	}
+
+	if response.Code != http.StatusOK {
 		ctx.JSON(respond.Default.NotFound())
 		return
 	}
