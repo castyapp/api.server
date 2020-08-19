@@ -2,7 +2,6 @@ package recaptcha
 
 import (
 	"encoding/json"
-	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"net/url"
@@ -10,46 +9,38 @@ import (
 	"strings"
 )
 
-type VerifyResponse struct {
-	Success       bool       `json:"success"`
-	ChallengeTs   string     `json:"challenge_ts"`
-	Hostname      string     `json:"hostname"`
-	ErrorCodes    []string   `json:"error-codes"`
+const (
+	siteVerifyEndpoint = "https://hcaptcha.com/siteverify"
+)
+
+type SiteVerificationResponse struct {
+	Success     bool      `json:"success"`
+	ErrorCodes  []string  `json:"error-codes"`
+	ChallengeTs string    `json:"challenge_ts"`
+	Hostname    string    `json:"hostname"`
+	Credit      bool      `json:"credit"`
 }
 
-func Verify(ctx *gin.Context) (bool, error) {
+func Verify(ctx *gin.Context) (*SiteVerificationResponse, error) {
 
 	var (
-		params     = url.Values{}
-		remoteIP   = ctx.ClientIP()
-		verifyResp = new(VerifyResponse)
-		token      = ctx.PostForm("g-recaptcha-response")
+		params = url.Values{}
+		result = new(SiteVerificationResponse)
+		token  = ctx.PostForm("h-captcha-response")
 	)
 
-	params.Add("secret", os.Getenv("RECAPTCHA_SECRET_KEY"))
-	params.Add("response", token)
-	params.Add("remoteip", remoteIP)
+	params.Set("secret", os.Getenv("RECAPTCHA_SECRET_KEY"))
+	params.Set("response", token)
+	body := strings.NewReader(params.Encode())
 
-	request, err := http.NewRequest("POST", "https://www.google.com/recaptcha/api/siteverify", strings.NewReader(params.Encode()))
+	response, err := http.Post(siteVerifyEndpoint, "application/x-www-form-urlencoded", body)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 
-	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-
-	response, err := http.DefaultClient.Do(request)
-	if err != nil {
-		return false, err
+	if err := json.NewDecoder(response.Body).Decode(result); err != nil {
+		return nil, err
 	}
 
-	decoder := json.NewDecoder(response.Body)
-	if err := decoder.Decode(&verifyResp); err != nil {
-		return false, err
-	}
-
-	if verifyResp.Success == true {
-		return true, nil
-	}
-
-	return false, errors.New("could not verify captcha")
+	return result, nil
 }

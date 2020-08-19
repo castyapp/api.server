@@ -49,7 +49,7 @@ func Create(ctx *gin.Context)  {
 		return
 	}
 
-	if success, err := recaptcha.Verify(ctx); err != nil || !success {
+	if body, err := recaptcha.Verify(ctx); err != nil || !body.Success {
 		ctx.JSON(respond.Default.ValidationErrors(map[string] interface{} {
 			"recaptcha": []string {
 				"Captcha is invalid!",
