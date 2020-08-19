@@ -26,7 +26,7 @@ func Verify(ctx *gin.Context) (*SiteVerificationResponse, error) {
 	var (
 		params = url.Values{}
 		result = new(SiteVerificationResponse)
-		token  = ctx.PostForm("h-captcha-response")
+		token  = ctx.GetHeader("h-captcha-response")
 	)
 
 	params.Set("secret", os.Getenv("RECAPTCHA_SECRET_KEY"))
