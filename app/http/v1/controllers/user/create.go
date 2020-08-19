@@ -23,7 +23,6 @@ func Create(ctx *gin.Context)  {
 			"password_confirmation":    []string{"required", "min:4", "max:80"},
 			"username":                 []string{"required", "between:3,20"},
 			"email":                    []string{"required", "email"},
-			"g-recaptcha-response":     []string{"required"},
 		}
 		opts = govalidator.Options{
 			Request:         ctx.Request,
@@ -34,7 +33,6 @@ func Create(ctx *gin.Context)  {
 	)
 
 	if validate := govalidator.New(opts).Validate(); validate.Encode() != "" {
-
 		validations := components.GetValidationErrorsFromGoValidator(validate)
 		ctx.JSON(respond.Default.ValidationErrors(validations))
 		return
