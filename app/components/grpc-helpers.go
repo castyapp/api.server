@@ -30,7 +30,9 @@ func ParseGrpcErrorResponse(err error) (code int, response interface{}, ok bool)
 		if s, ok := status.FromError(err); ok {
 			validationErrors := make(map[string] interface{}, 0)
 			for _, validationErr := range s.Proto().Details {
-				validationErrors[validationErr.TypeUrl] = validationErr.Value
+				validationErrors[validationErr.TypeUrl] = []string {
+					string(validationErr.Value),
+				}
 			}
 			code, response = respond.Default.SetStatusCode(420).
 				SetStatusText("failed").
