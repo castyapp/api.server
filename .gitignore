@@ -11,3 +11,4 @@
 !/storage/uploads/posters/.gitkeep
 !/storage/uploads/media/.gitkeep
 /storage/uploads/media/*
+*/**/.DS_Store
