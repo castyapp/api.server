@@ -84,6 +84,9 @@ func RegisterRoutes(router *gin.Engine)  {
 				messagesGroup.POST(":receiver_id", messages.Create)
 			}
 
+			// get user's oauth connections
+			authUserGroup.GET("@connections", user.GetConnections)
+
 			// search for a spesefic user
 			authUserGroup.GET("@search", user.Search)
 		}

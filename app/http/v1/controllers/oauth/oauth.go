@@ -15,7 +15,7 @@ import (
 func Callback(ctx *gin.Context)  {
 
 	var (
-		service proto.OAUTHRequest_Service
+		service proto.Connection_Type
 		rules = govalidator.MapData{
 			"code": []string{"required"},
 		}
@@ -28,9 +28,10 @@ func Callback(ctx *gin.Context)  {
 	)
 
 	switch serviceName := ctx.Param("service"); serviceName {
-	case "google": service = proto.OAUTHRequest_Google
-	case "discord": service = proto.OAUTHRequest_Discord
-	default: service = proto.OAUTHRequest_Invalid
+	case "google":  service = proto.Connection_GOOGLE
+	case "discord": service = proto.Connection_DISCORD
+	case "spotify": service = proto.Connection_SPOTIFY
+	default: service = proto.Connection_UNKNOWN
 		ctx.JSON(respond.Default.SetStatusCode(http.StatusBadRequest).
 			SetStatusText("Failed!").
 			RespondWithMessage("Invalid OAUTH Service!"))
