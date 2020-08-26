@@ -24,6 +24,7 @@ func Callback(ctx *gin.Context)  {
 			Rules:           rules,
 			RequiredDefault: false,
 		}
+		token    = ctx.GetHeader("Authorization")
 		validate = govalidator.New(opts).Validate()
 	)
 
@@ -43,11 +44,18 @@ func Callback(ctx *gin.Context)  {
 		mCtx, cancel := context.WithTimeout(ctx, 10 * time.Second)
 		defer cancel()
 
-		response, err := grpc.AuthServiceClient.CallbackOAUTH(mCtx, &proto.OAUTHRequest{
+		req := &proto.OAUTHRequest{
 			Code: ctx.PostForm("code"),
 			Service: service,
-		})
+		}
 
+		if token != "" {
+			req.AuthRequest = &proto.AuthenticateRequest{
+				Token: []byte(token),
+			}
+		}
+
+		response, err := grpc.AuthServiceClient.CallbackOAUTH(mCtx, req)
 		if err != nil {
 			ctx.JSON(respond.Default.SetStatusCode(http.StatusUnauthorized).
 				SetStatusText("Failed!").
@@ -56,6 +64,14 @@ func Callback(ctx *gin.Context)  {
 		}
 
 		if response.Code == http.StatusOK {
+
+			if response.Message != "" {
+				ctx.JSON(respond.Default.SetStatusCode(http.StatusOK).
+					SetStatusText("success").
+					RespondWithMessage(response.Message))
+				return
+			}
+
 			ctx.JSON(respond.Default.Succeed(map[string] interface{} {
 				"token": string(response.Token),
 				"refreshed_token": string(response.RefreshedToken),
