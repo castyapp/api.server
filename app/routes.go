@@ -7,14 +7,15 @@ import (
 	"github.com/CastyLab/api.server/app/http/v1/controllers/theater"
 	"github.com/CastyLab/api.server/app/http/v1/controllers/user"
 	"github.com/CastyLab/api.server/app/http/v1/middlewares"
+	"github.com/gin-gonic/gin"
 )
 
-func (a *Application) RegisterRoutes()  {
+func RegisterRoutes(router *gin.Engine)  {
 
-	a.router.Static("/uploads", "./storage/uploads")
+	router.Static("/uploads", "./storage/uploads")
 
 	// set v1 as namespace for all routes
-	v1 := a.router.Group("v1"); {
+	v1 := router.Group("v1"); {
 
 		// oauth routes
 		oauthGroup := v1.Group("oauth"); {
@@ -51,7 +52,6 @@ func (a *Application) RegisterRoutes()  {
 				notifsGroup.GET("", user.Notifications)
 				notifsGroup.PUT("", user.ReadAllNotifications)
 			}
-
 
 			// theater routes
 			theatersGroup := authUserGroup.Group("@theaters"); {
@@ -90,7 +90,6 @@ func (a *Application) RegisterRoutes()  {
 
 		// user routes without authentication
 		userGroup := v1.Group("user"); {
-			// create a new user
 			userGroup.POST("@create", user.Create)
 			userGroup.GET("@theater/:id", theater.Theater)
 			userGroup.GET("@theater/:id/subtitles", theater.Subtitles)

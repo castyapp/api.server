@@ -44,7 +44,11 @@ func ParseGrpcErrorResponse(err error) (code int, response interface{}, ok bool)
 			SetStatusText("failed").
 			RespondWithMessage("Invalid arguments!")
 		return
-
+	case codes.Unavailable:
+		code, response = respond.Default.SetStatusCode(http.StatusServiceUnavailable).
+			SetStatusText("failed").
+			RespondWithMessage("Service Unavailable!")
+		return
 	default:
 		code, response = respond.Default.SetStatusCode(http.StatusInternalServerError).
 			SetStatusText("failed").

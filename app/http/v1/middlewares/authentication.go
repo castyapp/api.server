@@ -32,7 +32,7 @@ func Authentication(ctx *gin.Context)  {
 	if err != nil {
 		code, result, ok := components.ParseGrpcErrorResponse(err)
 		if !ok {
-			ctx.JSON(code, result)
+			ctx.AbortWithStatusJSON(code, result)
 			return
 		}
 	}

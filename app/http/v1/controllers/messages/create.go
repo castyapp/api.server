@@ -26,7 +26,6 @@ func Create(ctx *gin.Context)  {
 	)
 
 	if validate := govalidator.New(opts).Validate(); validate.Encode() != "" {
-
 		validations := components.GetValidationErrorsFromGoValidator(validate)
 		ctx.JSON(respond.Default.ValidationErrors(validations))
 		return

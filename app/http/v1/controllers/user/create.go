@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/thedevsaddam/govalidator"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -47,13 +48,15 @@ func Create(ctx *gin.Context)  {
 		return
 	}
 
-	if body, err := recaptcha.Verify(ctx); err != nil || !body.Success {
-		ctx.JSON(respond.Default.ValidationErrors(map[string] interface{} {
-			"recaptcha": []string {
-				"Captcha is invalid!",
-			},
-		}))
-		return
+	if os.Getenv("APP_ENVIRONMENT") != "dev" {
+		if body, err := recaptcha.Verify(ctx); err != nil || !body.Success {
+			ctx.JSON(respond.Default.ValidationErrors(map[string] interface{} {
+				"recaptcha": []string {
+					"Captcha is invalid!",
+				},
+			}))
+			return
+		}
 	}
 
 	response, err := grpc.UserServiceClient.CreateUser(mCtx, &proto.CreateUserRequest{
