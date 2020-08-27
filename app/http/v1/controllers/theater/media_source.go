@@ -69,7 +69,7 @@ func DeleteMediaSource(ctx *gin.Context)  {
 		AuthRequest: &proto.AuthenticateRequest{
 			Token: []byte(token),
 		},
-		MediaSourceId: ctx.PostForm("source_id"),
+		MediaSourceId: ctx.Query("source_id"),
 	})
 
 	if err != nil {
