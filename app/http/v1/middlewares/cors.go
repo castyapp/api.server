@@ -18,6 +18,7 @@ func CORSMiddleware(c *gin.Context) {
 		"Accept-Encoding, " +
 		"X-CSRF-Token, " +
 		"Authorization, " +
+		"Service-Authorization, " +
 		"accept, " +
 		"origin, " +
 		"Cache-Control, " +

@@ -89,6 +89,7 @@ func RegisterRoutes(router *gin.Engine)  {
 			connectionsGroup := authUserGroup.Group("@connections"); {
 				connectionsGroup.GET("", user.GetConnections)
 				connectionsGroup.GET(":service", user.GetConnection)
+				connectionsGroup.PUT(":service", user.UpdateConnection)
 			}
 
 			// search for a spesefic user
