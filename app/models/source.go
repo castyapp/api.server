@@ -45,6 +45,7 @@ func (m *MediaSource) parseYoutube() error {
 	m.proto.Type = proto.MediaSource_YOUTUBE
 	m.proto.Banner = video.Thumbnail_url
 	m.proto.Title = video.Title
+	m.proto.Artist = video.Author
 	m.proto.Length = int64(video.Length_seconds)
 	return nil
 }
@@ -59,7 +60,14 @@ func (m *MediaSource) parseSpotify(id string) error {
 		m.proto.Type = proto.MediaSource_SPOTIFY
 		m.proto.Title = track.Name
 		m.proto.Length = int64(track.DurationMs / 1000)
-		m.proto.Banner = track.Album.Images[2].URL
+		m.proto.Banner = track.Album.Images[0].URL
+		m.proto.Artist = ""
+		for i, artist := range track.Artists {
+			m.proto.Artist += artist.Name
+			if (len(track.Artists) - 1) != i {
+				m.proto.Artist += ", "
+			}
+		}
 		return nil
 	case "episode":
 		episode, err := spotify.GetEpisode(id, m.accessToken)
@@ -69,7 +77,8 @@ func (m *MediaSource) parseSpotify(id string) error {
 		m.proto.Type = proto.MediaSource_SPOTIFY
 		m.proto.Title = episode.Name
 		m.proto.Length = int64(episode.DurationMs / 1000)
-		m.proto.Banner = episode.Images[2].URL
+		m.proto.Banner = episode.Images[0].URL
+		m.proto.Artist = episode.Show.Name
 		return nil
 	}
 	return errors.New("could not parse spotify")

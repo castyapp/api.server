@@ -40,8 +40,14 @@ func GetEpisode(episodeId, accessToken string) (*Episode, error) {
 }
 
 type Episode struct {
-	DurationMs        int          `json:"duration_ms"`
-	Name              string       `json:"name"`
-	Images            []Image      `json:"images"`
-	URI               string       `json:"uri"`
+	Show            Show         `json:"show"`
+	DurationMs      int          `json:"duration_ms"`
+	Name            string       `json:"name"`
+	Images          []Image      `json:"images"`
+	URI             string       `json:"uri"`
+}
+
+type Show struct {
+	Id    string  `json:"id"`
+	Name  string  `json:"name"`
 }

@@ -46,9 +46,15 @@ func GetTrack(trackId, accessToken string) (*Track, error) {
 
 type Track struct {
 	Album             Album        `json:"album"`
+	Artists           []Artist     `json:"artists"`
 	DurationMs        int          `json:"duration_ms"`
 	Name              string       `json:"name"`
 	URI               string       `json:"uri"`
+}
+
+type Artist struct {
+	Id     string   `json:"id"`
+	Name   string   `json:"name"`
 }
 
 type Album struct {

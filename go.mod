@@ -3,7 +3,7 @@ module github.com/CastyLab/api.server
 go 1.14
 
 require (
-	github.com/CastyLab/grpc.proto v0.0.0-20200828174838-215db8890e66
+	github.com/CastyLab/grpc.proto v0.0.0-20200829020729-8a1f43db6b04
 	github.com/MrJoshLab/go-collection v0.0.0-20190704210143-e2d32f5a639a // indirect
 	github.com/MrJoshLab/go-respond v0.0.0-20191125172458-25d4d18aaa1b
 	github.com/astaxie/beego v1.12.1 // indirect
