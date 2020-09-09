@@ -1,13 +1,13 @@
 package middlewares
 
 import (
+	"github.com/CastyLab/api.server/config"
 	"github.com/gin-gonic/gin"
-	"os"
 )
 
 func CORSMiddleware(c *gin.Context) {
 
-	c.Writer.Header().Set("Access-Control-Allow-Origin", os.Getenv("ACCESS_CONTROL_ALLOW_ORIGIN"))
+	c.Writer.Header().Set("Access-Control-Allow-Origin", config.Map.Http.AccessControlAllowOrigin)
 	c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 
 	c.Writer.Header().Set(
@@ -18,6 +18,7 @@ func CORSMiddleware(c *gin.Context) {
 		"Accept-Encoding, " +
 		"X-CSRF-Token, " +
 		"Authorization, " +
+		"Service-Authorization, " +
 		"accept, " +
 		"origin, " +
 		"Cache-Control, " +

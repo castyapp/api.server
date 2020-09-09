@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"github.com/CastyLab/api.server/app/components/spotify"
 	rnd "github.com/CastyLab/api.server/app/components/strings"
 	"github.com/CastyLab/grpc.proto/proto"
 	"github.com/knadh/go-get-youtube/youtube"
@@ -22,7 +23,9 @@ type MediaFile struct {
 }
 
 type MediaSource struct {
-	u string
+	u           string
+	trackType   string
+	accessToken string
 	proto *proto.MediaSource
 }
 
@@ -30,8 +33,8 @@ func (m *MediaSource) Proto() *proto.MediaSource {
 	return m.proto
 }
 
-func NewMediaSource(uri string) *MediaSource {
-	return &MediaSource{u: uri}
+func NewMediaSource(uri string, accessToken string) *MediaSource {
+	return &MediaSource{u: uri, accessToken: accessToken}
 }
 
 func (m *MediaSource) parseYoutube() error {
@@ -42,18 +45,51 @@ func (m *MediaSource) parseYoutube() error {
 	m.proto.Type = proto.MediaSource_YOUTUBE
 	m.proto.Banner = video.Thumbnail_url
 	m.proto.Title = video.Title
+	m.proto.Artist = video.Author
 	m.proto.Length = int64(video.Length_seconds)
 	return nil
 }
 
-func (m *MediaSource) parseDownloadUri() error {
+func (m *MediaSource) parseSpotify(id string) error {
+	switch m.trackType {
+	case "track":
+		track, err := spotify.GetTrack(id, m.accessToken)
+		if err != nil {
+			return err
+		}
+		m.proto.Type = proto.MediaSource_SPOTIFY
+		m.proto.Title = track.Name
+		m.proto.Length = int64(track.DurationMs / 1000)
+		m.proto.Banner = track.Album.Images[0].URL
+		m.proto.Artist = ""
+		for i, artist := range track.Artists {
+			m.proto.Artist += artist.Name
+			if (len(track.Artists) - 1) != i {
+				m.proto.Artist += ", "
+			}
+		}
+		return nil
+	case "episode":
+		episode, err := spotify.GetEpisode(id, m.accessToken)
+		if err != nil {
+			return err
+		}
+		m.proto.Type = proto.MediaSource_SPOTIFY
+		m.proto.Title = episode.Name
+		m.proto.Length = int64(episode.DurationMs / 1000)
+		m.proto.Banner = episode.Images[0].URL
+		m.proto.Artist = episode.Show.Name
+		return nil
+	}
+	return errors.New("could not parse spotify")
+}
 
+func (m *MediaSource) parseDownloadUri() error {
 	response, err := http.Get(m.u)
 	if err != nil {
 		m.proto.Type = proto.MediaSource_UNKNOWN
 		return errors.New("type is unknown")
 	}
-
 	contentType := response.Header.Get("Content-Type")
 	switch contentType {
 	case "video/mp4", "application/octet-stream":
@@ -106,17 +142,22 @@ func getMovieDuration(uri string) (duration int64, err error) {
 }
 
 func (m *MediaSource) Parse() error {
-
 	m.proto = &proto.MediaSource{Uri: m.u}
-
 	u, err := url.ParseRequestURI(m.u)
 	if err != nil {
 		return err
 	}
-
 	switch domain := strings.ReplaceAll(u.Hostname(), "www.", ""); domain {
 	case "youtube.com", "yt.com":
 		return m.parseYoutube()
+	case "spotify", "open.spotify.com":
+		parsed := strings.Split(u.Path, "/")
+		switch strings.TrimSpace(parsed[1]) {
+		case "track": m.trackType = "track"; break
+		case "episode": m.trackType = "episode"; break
+		default: return errors.New("could not parse spotify")
+		}
+		return m.parseSpotify(strings.TrimSpace(parsed[2]))
 	default:
 		return m.parseDownloadUri()
 	}
@@ -136,6 +177,10 @@ func (m *MediaSource) IsTorrent() bool {
 
 func (m *MediaSource) IsSoundCloud() bool {
 	return m.proto.Type == proto.MediaSource_SOUND_CLOUD
+}
+
+func (m *MediaSource) IsSpotify() bool {
+	return m.proto.Type == proto.MediaSource_SPOTIFY
 }
 
 func (m *MediaSource) IsDownloadUri() bool {

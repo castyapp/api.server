@@ -4,13 +4,13 @@ import (
 	"context"
 	"github.com/CastyLab/api.server/app/components"
 	"github.com/CastyLab/api.server/app/components/recaptcha"
+	"github.com/CastyLab/api.server/config"
 	"github.com/CastyLab/api.server/grpc"
 	"github.com/CastyLab/grpc.proto/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
 	"github.com/thedevsaddam/govalidator"
 	"net/http"
-	"os"
 	"time"
 )
 
@@ -48,7 +48,7 @@ func Create(ctx *gin.Context)  {
 		return
 	}
 
-	if os.Getenv("APP_ENVIRONMENT") != "dev" {
+	if config.Map.App.Env != "dev" {
 		if body, err := recaptcha.Verify(ctx); err != nil || !body.Success {
 			ctx.JSON(respond.Default.ValidationErrors(map[string] interface{} {
 				"recaptcha": []string {

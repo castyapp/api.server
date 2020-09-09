@@ -2,11 +2,11 @@ package middlewares
 
 import (
 	"encoding/json"
+	"github.com/CastyLab/api.server/config"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"net/url"
-	"os"
 	"strings"
 )
 
@@ -45,7 +45,7 @@ func HcaptchaMiddleware(ctx *gin.Context)  {
 		})
 	)
 
-	params.Set("secret", os.Getenv("RECAPTCHA_SECRET_KEY"))
+	params.Set("secret", config.Map.Secrets.HcaptchaSecret)
 	params.Set("response", token)
 	body := strings.NewReader(params.Encode())
 

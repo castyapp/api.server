@@ -6,6 +6,7 @@ import (
 	"github.com/CastyLab/api.server/grpc"
 	"github.com/CastyLab/grpc.proto/proto"
 	"github.com/MrJoshLab/go-respond"
+	"github.com/getsentry/sentry-go"
 	"github.com/gin-gonic/gin"
 	"github.com/thedevsaddam/govalidator"
 	"net/http"
@@ -57,6 +58,7 @@ func Callback(ctx *gin.Context)  {
 
 		response, err := grpc.AuthServiceClient.CallbackOAUTH(mCtx, req)
 		if err != nil {
+			sentry.CaptureException(err)
 			ctx.JSON(respond.Default.SetStatusCode(http.StatusUnauthorized).
 				SetStatusText("Failed!").
 				RespondWithMessage("Unauthorized!"))

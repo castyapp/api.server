@@ -9,7 +9,6 @@ import (
 	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
 	"github.com/thedevsaddam/govalidator"
-	"log"
 	"net/http"
 	"time"
 )
@@ -69,7 +68,7 @@ func DeleteMediaSource(ctx *gin.Context)  {
 		AuthRequest: &proto.AuthenticateRequest{
 			Token: []byte(token),
 		},
-		MediaSourceId: ctx.PostForm("source_id"),
+		MediaSourceId: ctx.Query("source_id"),
 	})
 
 	if err != nil {
@@ -151,11 +150,10 @@ func ParseMediaSourceUri(ctx *gin.Context)  {
 		return
 	}
 
-	mediaSource := models.NewMediaSource(ctx.PostForm("source"))
+	accessToken := ctx.GetHeader("Service-Authorization")
+	mediaSource := models.NewMediaSource(ctx.PostForm("source"), accessToken)
 
-	err := mediaSource.Parse()
-	if err != nil {
-		log.Println(err)
+	if err := mediaSource.Parse(); err != nil {
 		ctx.JSON(respond.Default.
 			SetStatusText("Failed!").
 			SetStatusCode(http.StatusBadRequest).
@@ -203,10 +201,10 @@ func AddNewMediaSource(ctx *gin.Context) {
 		return
 	}
 
-	mediaSource := models.NewMediaSource(ctx.PostForm("source"))
+	accessToken := ctx.GetHeader("Service-Authorization")
+	mediaSource := models.NewMediaSource(ctx.PostForm("source"), accessToken)
 
-	err := mediaSource.Parse()
-	if err != nil {
+	if err := mediaSource.Parse(); err != nil {
 		ctx.JSON(respond.Default.
 			SetStatusText("Failed!").
 			SetStatusCode(http.StatusBadRequest).

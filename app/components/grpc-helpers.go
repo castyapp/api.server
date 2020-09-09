@@ -2,6 +2,7 @@ package components
 
 import (
 	"github.com/MrJoshLab/go-respond"
+	"github.com/getsentry/sentry-go"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"net/http"
@@ -50,6 +51,7 @@ func ParseGrpcErrorResponse(err error) (code int, response interface{}, ok bool)
 			RespondWithMessage("Service Unavailable!")
 		return
 	default:
+		sentry.CaptureException(err)
 		code, response = respond.Default.SetStatusCode(http.StatusInternalServerError).
 			SetStatusText("failed").
 			RespondWithMessage("Internal server error. Please try again later!")
