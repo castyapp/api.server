@@ -1,0 +1,13 @@
+app:
+  version: "0.1-dev"
+  debug: true
+  env: "dev"
+grpc:
+  host: "localhost"
+  port: 55283
+http:
+  access_control_allow_origin: "*"
+secrets:
+  sentry_dsn: ""
+  hcaptcha_secret: ""
+storage_path: "/casty_storage"

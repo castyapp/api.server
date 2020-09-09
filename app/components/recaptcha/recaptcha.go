@@ -2,10 +2,10 @@ package recaptcha
 
 import (
 	"encoding/json"
+	"github.com/CastyLab/api.server/config"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"net/url"
-	"os"
 	"strings"
 )
 
@@ -29,7 +29,7 @@ func Verify(ctx *gin.Context) (*SiteVerificationResponse, error) {
 		token  = ctx.GetHeader("h-captcha-response")
 	)
 
-	params.Set("secret", os.Getenv("RECAPTCHA_SECRET_KEY"))
+	params.Set("secret", config.Map.Secrets.HcaptchaSecret)
 	params.Set("response", token)
 	body := strings.NewReader(params.Encode())
 

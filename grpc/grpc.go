@@ -2,11 +2,9 @@ package grpc
 
 import (
 	"fmt"
+	"github.com/CastyLab/api.server/config"
 	"github.com/CastyLab/grpc.proto/proto"
-	_ "github.com/joho/godotenv/autoload"
 	"google.golang.org/grpc"
-	"log"
-	"os"
 )
 
 var (
@@ -16,20 +14,21 @@ var (
 	MessagesServiceClient proto.MessagesServiceClient
 )
 
-func init() {
+func Configure() error {
 
 	var (
-		host = os.Getenv("GRPC_HOST")
-		port = os.Getenv("GRPC_PORT")
+		host = config.Map.Grpc.Host
+		port = config.Map.Grpc.Port
 	)
 
-	conn, err := grpc.Dial(fmt.Sprintf("%s:%s", host, port), grpc.WithInsecure())
+	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", host, port), grpc.WithInsecure())
 	if err != nil {
-		log.Fatal(err)
+		return fmt.Errorf("could not dialing grpc.server: %v", err)
 	}
 
 	UserServiceClient    = proto.NewUserServiceClient(conn)
 	AuthServiceClient    = proto.NewAuthServiceClient(conn)
 	TheaterServiceClient = proto.NewTheaterServiceClient(conn)
 	MessagesServiceClient = proto.NewMessagesServiceClient(conn)
+	return nil
 }

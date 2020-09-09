@@ -6,30 +6,51 @@ import (
 	"github.com/CastyLab/api.server/app"
 	"github.com/CastyLab/api.server/app/http/v1/middlewares"
 	"github.com/CastyLab/api.server/app/http/v1/validators"
+	"github.com/CastyLab/api.server/config"
+	"github.com/CastyLab/api.server/grpc"
 	"github.com/getsentry/sentry-go"
 	"github.com/gin-gonic/gin"
-	_ "github.com/joho/godotenv/autoload"
 	"github.com/thedevsaddam/govalidator"
 	"log"
-	"os"
 	"time"
 )
 
-func main() {
+var (
+	port *int
+	host *string
+)
 
-	log.SetFlags(log.Lshortfile)
+func init() {
+	log.SetFlags(log.Ltime | log.Lshortfile)
 
-	port := flag.Int("port", 9002, "Casty http api port")
+	port   = flag.Int("port", 9002, "api server port")
+	host   = flag.String("host", "0.0.0.0", "api server host")
+	configFileName := flag.String("config-file", "config.yml", "config.yaml file")
+
 	flag.Parse()
+	log.Printf("Loading ConfigMap from file: [%s]", *configFileName)
 
-	if err := sentry.Init(sentry.ClientOptions{ Dsn: os.Getenv("SENTRY_DSN") }); err != nil {
-		log.Fatal(err)
+	if err := config.Load(*configFileName); err != nil {
+		log.Fatal(fmt.Errorf("could not load config: %v", err))
 	}
 
+	if err := grpc.Configure(); err != nil {
+		log.Fatal(fmt.Errorf("could not configure grpc.server: %v", err))
+	}
+
+	if err := sentry.Init(sentry.ClientOptions{ Dsn: config.Map.Secrets.SentryDsn }); err != nil {
+		log.Fatal(fmt.Errorf("could not initilize sentry: %v", err))
+	}
+}
+
+func main() {
+
+	// Since sentry emits events in the background we need to make sure
+	// they are sent before we shut down
 	defer sentry.Flush(5 * time.Second)
 
 	gin.SetMode(gin.ReleaseMode)
-	if os.Getenv("APP_ENVIRONMENT") == "dev" {
+	if config.Map.App.Env == "dev" {
 		gin.SetMode(gin.DebugMode)
 	}
 
@@ -42,8 +63,8 @@ func main() {
 
 	app.RegisterRoutes(router)
 
-	log.Printf("Server running and listening on port [%d]", *port)
-	if err := router.Run(fmt.Sprintf(":%d", *port)); err != nil {
+	log.Printf("Server running and listening on port [%s:%d]", *host, *port)
+	if err := router.Run(fmt.Sprintf("%s:%d", *host, *port)); err != nil {
 		sentry.CaptureException(err)
 		log.Fatal(err)
 	}
