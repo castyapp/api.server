@@ -17,31 +17,24 @@ $ git clone https://github.com/CastyLab/api.server.git
 ```
 
 ## Configuraition
-There is a `.env.example` file that you should make a copy of, and call it `.env`
+There is a `config.example.yml` file that you should make a copy of, and call it `config.yml` in your work directory.
 
 ```bash
-$ cp .env.example .env
+$ cp config.example.yml config.yml
 ```
 
-The most important environments here are `GRPC_HOST`, `GRPC_PORT` and `RECAPTCHA_SECRET_KEY`
-```env
-APP_VERSION=0.1-test
-APP_DEBUG=true
-APP_ENVIRONMENT=test
-
-GRPC_HOST=localhost
-GRPC_PORT=55283
-
-RECAPTCHA_SECRET_KEY=
-
-SENTRY_DSN=
+The most important environments here are `grpc.host`, `grpc.port` and `secrets.hcaptcha_secret`
+```yaml
+grpc:
+  host: "localhost"
+  port: 55283
 ```
 
-`GRPC_HOST` and `GRPC_PORT` are the gRPC.server ip address and port that you should have! [Casty gRPC.server](https://github.com/CastyLab/grpc.server)
+`grpc.host` and `grpc.port` are the gRPC.server ip address and port that you should have! [Casty gRPC.server](https://github.com/CastyLab/grpc.server)
 
-`RECAPTCHA_SECRET_KEY` is google recaptcha secret key that you should set up on google admin console!
+`secrets.hcaptcha_secret` is hcaptcha secret key that you should set up on google admin console!
 
-for more information about google recaptcha [click here](https://developers.google.com/recaptcha/intro)
+for more information about hcaptcha [click here](https://www.hcaptcha.com/)
 
 You're ready to Go!
 
