@@ -1,15 +1,20 @@
-FROM golang:1.14
+FROM golang:1.14-alpine AS builder
 
 LABEL maintainer="Alireza Josheghani <josheghani.dev@gmail.com>"
 
 # Creating work directory
-WORKDIR /app
+WORKDIR /code
 
 # Adding project to work directory
-ADD . /app
+ADD . /code
 
 # build project
 RUN go build -o server .
+
+FROM alpine:latest
+
+WORKDIR /app
+COPY --from=builder /app/server /app
 
 EXPOSE 9002
 
