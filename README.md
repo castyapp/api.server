@@ -7,6 +7,11 @@ This is a backend API server of Casty project written in go!
 
 You can find API Documentations on Postman
 
+## Run Docker Container
+```bash
+$ docker run -p 9002:9002 castylab/api:1.3.7-alpine
+```
+
 ## Requirements
 * Golang `(1.14)` Always be up to date!) [Install Golang!](https://golang.org/doc/install)
 * gRPC.server **This project needs to connect to Casty gRPC server!**  [More info](https://github.com/CastyLab/grpc.server)

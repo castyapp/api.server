@@ -32,7 +32,7 @@ func Create(ctx *gin.Context) {
 	if validate.Encode() == "" {
 
 		if config.Map.App.Env == "prod" {
-			if body, err := recaptcha.Verify(ctx); err != nil || !body.Success {
+			if _, err := recaptcha.Verify(ctx); err != nil {
 				sentry.CaptureException(err)
 				ctx.JSON(respond.Default.ValidationErrors(map[string] interface{} {
 					"recaptcha": []string {

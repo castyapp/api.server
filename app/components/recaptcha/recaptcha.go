@@ -2,6 +2,7 @@ package recaptcha
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/CastyLab/api.server/config"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -40,6 +41,10 @@ func Verify(ctx *gin.Context) (*SiteVerificationResponse, error) {
 
 	if err := json.NewDecoder(response.Body).Decode(result); err != nil {
 		return nil, err
+	}
+
+	if !result.Success {
+		return result, fmt.Errorf("captcha is invalid! reason:[%v]", result.ErrorCodes)
 	}
 
 	return result, nil
