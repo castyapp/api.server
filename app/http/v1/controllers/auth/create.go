@@ -7,6 +7,7 @@ import (
 	"github.com/CastyLab/api.server/grpc"
 	"github.com/CastyLab/grpc.proto/proto"
 	"github.com/MrJoshLab/go-respond"
+	"github.com/getsentry/sentry-go"
 	"github.com/gin-gonic/gin"
 	"github.com/thedevsaddam/govalidator"
 )
@@ -30,8 +31,9 @@ func Create(ctx *gin.Context) {
 
 	if validate.Encode() == "" {
 
-		if config.Map.App.Env != "dev" {
+		if config.Map.App.Env == "prod" {
 			if body, err := recaptcha.Verify(ctx); err != nil || !body.Success {
+				sentry.CaptureException(err)
 				ctx.JSON(respond.Default.ValidationErrors(map[string] interface{} {
 					"recaptcha": []string {
 						"Captcha is invalid!",
@@ -47,6 +49,7 @@ func Create(ctx *gin.Context) {
 		})
 
 		if err != nil {
+			sentry.CaptureException(err)
 			code, result, ok := components.ParseGrpcErrorResponse(err)
 			if !ok {
 				ctx.JSON(code, result)
