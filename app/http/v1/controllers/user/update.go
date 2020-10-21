@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/CastyLab/api.server/app/components"
 	"github.com/CastyLab/api.server/app/components/strings"
+	"github.com/CastyLab/api.server/config"
 	"github.com/CastyLab/api.server/grpc"
 	"github.com/CastyLab/grpc.proto/proto"
 	"github.com/MrJoshLab/go-respond"
@@ -40,7 +41,8 @@ func Update(ctx *gin.Context)  {
 
 	if avatarFile, err := ctx.FormFile("avatar"); err == nil {
 		avatar := strings.RandomNumber(20)
-		if err := ctx.SaveUploadedFile(avatarFile, fmt.Sprintf("./storage/uploads/avatars/%s.png", avatar)); err != nil {
+		avatarName := fmt.Sprintf("%s/uploads/avatars/%s.png", config.Map.StoragePath, avatar)
+		if err := ctx.SaveUploadedFile(avatarFile, avatarName); err != nil {
 			sentry.CaptureException(err)
 			ctx.JSON(respond.Default.
 				SetStatusText("Failed!").

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/CastyLab/api.server/app/components/strings"
+	"github.com/CastyLab/api.server/config"
 	"github.com/asticode/go-astisub"
 	"io/ioutil"
 	"mime/multipart"
@@ -45,7 +46,8 @@ func Save(sFile *multipart.FileHeader) (string, error) {
 		return "", err
 	}
 
-	file, err := os.Create(fmt.Sprintf("./storage/uploads/subtitles/%s.vtt", subtitleName))
+	subtitleFileName := fmt.Sprintf("%s/uploads/subtitles/%s.vtt", config.Map.StoragePath, subtitleName)
+	file, err := os.Create(subtitleFileName)
 	if err != nil {
 		return "", err
 	}
