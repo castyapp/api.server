@@ -48,8 +48,8 @@ func Create(ctx *gin.Context)  {
 		return
 	}
 
-	if config.Map.App.Env != "dev" {
-		if body, err := recaptcha.Verify(ctx); err != nil || !body.Success {
+	if config.Map.App.Env == "prod" {
+		if _, err := recaptcha.Verify(ctx); err != nil {
 			ctx.JSON(respond.Default.ValidationErrors(map[string] interface{} {
 				"recaptcha": []string {
 					"Captcha is invalid!",
