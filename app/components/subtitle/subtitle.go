@@ -3,12 +3,13 @@ package subtitle
 import (
 	"bytes"
 	"fmt"
-	"github.com/CastyLab/api.server/app/components/strings"
-	"github.com/CastyLab/api.server/config"
-	"github.com/asticode/go-astisub"
 	"io/ioutil"
 	"mime/multipart"
-	"os"
+
+	"github.com/CastyLab/api.server/app/components/strings"
+	"github.com/CastyLab/api.server/storage"
+	"github.com/asticode/go-astisub"
+	"github.com/minio/minio-go"
 )
 
 // Convert and return subtitle files to WebVTT
@@ -46,13 +47,8 @@ func Save(sFile *multipart.FileHeader) (string, error) {
 		return "", err
 	}
 
-	subtitleFileName := fmt.Sprintf("%s/uploads/subtitles/%s.vtt", config.Map.StoragePath, subtitleName)
-	file, err := os.Create(subtitleFileName)
+	_, err = storage.Client.PutObject("subtitles", fmt.Sprintf("%s.vtt", subtitleName), buf, -1, minio.PutObjectOptions{})
 	if err != nil {
-		return "", err
-	}
-
-	if _, err := file.Write(buf.Bytes()); err != nil {
 		return "", err
 	}
 

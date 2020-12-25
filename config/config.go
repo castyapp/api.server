@@ -2,9 +2,10 @@ package config
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"log"
 	"os"
+
+	"gopkg.in/yaml.v2"
 )
 
 type ConfMap struct {
@@ -21,10 +22,15 @@ type ConfMap struct {
 		AccessControlAllowOrigin string `yaml:"access_control_allow_origin"`
 	} `yaml:"http"`
 	Secrets struct {
+		ObjectStorage struct {
+			Endpoint  string `yaml:"endpoint"`
+			Region    string `yaml:"region"`
+			AccessKey string `yaml:"access_key"`
+			SecretKey string `yaml:"secret_key"`
+		} `yaml:"object_storage"`
 		SentryDsn      string `yaml:"sentry_dsn"`
 		HcaptchaSecret string `yaml:"hcaptcha_secret"`
 	} `yaml:"secrets"`
-	StoragePath string `yaml:"storage_path"`
 }
 
 var Map = new(ConfMap)

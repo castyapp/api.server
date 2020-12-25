@@ -1,15 +1,6 @@
 /.DS_Store
 /.idea
 /database/*.db
-/storage/uploads/avatars/*
-!/storage/uploads/avatars/.gitkeep
-!/storage/uploads/avatars/default.png
-/storage/uploads/subtitles/*
-!/storage/uploads/subtitles/.gitkeep
-/storage/uploads/posters/*
-!/storage/uploads/posters/.gitkeep
-!/storage/uploads/media/.gitkeep
-/storage/uploads/media/*
 */**/.DS_Store
 config.yml
 server
