@@ -12,3 +12,5 @@
 /storage/uploads/media/*
 */**/.DS_Store
 config.yml
+server
+docker.config.yml

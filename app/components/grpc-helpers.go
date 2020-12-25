@@ -1,11 +1,13 @@
 package components
 
 import (
+	"log"
+	"net/http"
+
 	"github.com/MrJoshLab/go-respond"
 	"github.com/getsentry/sentry-go"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"net/http"
 )
 
 func ParseGrpcErrorResponse(err error) (code int, response interface{}, ok bool) {
@@ -29,9 +31,9 @@ func ParseGrpcErrorResponse(err error) (code int, response interface{}, ok bool)
 	case codes.InvalidArgument:
 
 		if s, statusOK := status.FromError(err); statusOK {
-			validationErrors := make(map[string] interface{}, 0)
+			validationErrors := make(map[string]interface{}, 0)
 			for _, validationErr := range s.Proto().Details {
-				validationErrors[validationErr.TypeUrl] = []string {
+				validationErrors[validationErr.TypeUrl] = []string{
 					string(validationErr.Value),
 				}
 			}
@@ -51,6 +53,7 @@ func ParseGrpcErrorResponse(err error) (code int, response interface{}, ok bool)
 			RespondWithMessage("Service Unavailable!")
 		return
 	default:
+		log.Println(err)
 		sentry.CaptureException(err)
 		code, response = respond.Default.SetStatusCode(http.StatusInternalServerError).
 			SetStatusText("failed").

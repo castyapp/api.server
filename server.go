@@ -3,6 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
+	"time"
+
 	"github.com/CastyLab/api.server/app"
 	"github.com/CastyLab/api.server/app/http/v1/middlewares"
 	"github.com/CastyLab/api.server/app/http/v1/validators"
@@ -11,8 +14,6 @@ import (
 	"github.com/getsentry/sentry-go"
 	"github.com/gin-gonic/gin"
 	"github.com/thedevsaddam/govalidator"
-	"log"
-	"time"
 )
 
 var (
@@ -23,8 +24,8 @@ var (
 func init() {
 	log.SetFlags(log.Ltime | log.Lshortfile)
 
-	port   = flag.Int("port", 9002, "api server port")
-	host   = flag.String("host", "0.0.0.0", "api server host")
+	port = flag.Int("port", 9002, "api server port")
+	host = flag.String("host", "0.0.0.0", "api server host")
 	configFileName := flag.String("config-file", "config.yml", "config.yaml file")
 
 	flag.Parse()
@@ -38,7 +39,7 @@ func init() {
 		log.Fatal(fmt.Errorf("could not configure grpc.server: %v", err))
 	}
 
-	if err := sentry.Init(sentry.ClientOptions{ Dsn: config.Map.Secrets.SentryDsn }); err != nil {
+	if err := sentry.Init(sentry.ClientOptions{Dsn: config.Map.Secrets.SentryDsn}); err != nil {
 		log.Fatal(fmt.Errorf("could not initilize sentry: %v", err))
 	}
 }
