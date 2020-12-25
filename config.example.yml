@@ -8,6 +8,9 @@ grpc:
 http:
   access_control_allow_origin: "*"
 secrets:
+  object_storage:
+    endpoint: "127.0.0.1:9000"
+    access_key: "secret-access-key"
+    secret_key: "secret-key"
   sentry_dsn: ""
   hcaptcha_secret: ""
-storage_path: "/casty_storage"

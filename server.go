@@ -11,6 +11,7 @@ import (
 	"github.com/CastyLab/api.server/app/http/v1/validators"
 	"github.com/CastyLab/api.server/config"
 	"github.com/CastyLab/api.server/grpc"
+	"github.com/CastyLab/api.server/storage"
 	"github.com/getsentry/sentry-go"
 	"github.com/gin-gonic/gin"
 	"github.com/thedevsaddam/govalidator"
@@ -36,7 +37,11 @@ func init() {
 	}
 
 	if err := grpc.Configure(); err != nil {
-		log.Fatal(fmt.Errorf("could not configure grpc.server: %v", err))
+		log.Fatal(fmt.Errorf("could not configure grpc.client: %v", err))
+	}
+
+	if err := storage.Configure(); err != nil {
+		log.Fatal(fmt.Errorf("could not configure s3 bucket storage client: %v", err))
 	}
 
 	if err := sentry.Init(sentry.ClientOptions{Dsn: config.Map.Secrets.SentryDsn}); err != nil {

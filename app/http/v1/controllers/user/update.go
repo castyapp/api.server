@@ -3,26 +3,28 @@ package user
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"time"
+
 	"github.com/CastyLab/api.server/app/components"
 	"github.com/CastyLab/api.server/app/components/strings"
-	"github.com/CastyLab/api.server/config"
 	"github.com/CastyLab/api.server/grpc"
+	"github.com/CastyLab/api.server/storage"
 	"github.com/CastyLab/grpc.proto/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/getsentry/sentry-go"
 	"github.com/gin-gonic/gin"
+	"github.com/minio/minio-go"
 	"github.com/thedevsaddam/govalidator"
-	"net/http"
-	"time"
 )
 
-func Update(ctx *gin.Context)  {
+func Update(ctx *gin.Context) {
 
 	var (
 		protoUser = new(proto.User)
-		token = ctx.Request.Header.Get("Authorization")
-		rules = govalidator.MapData{
-			"file:avatar":  []string{"ext:jpg,jpeg,png", "size:2000000"},
+		token     = ctx.Request.Header.Get("Authorization")
+		rules     = govalidator.MapData{
+			"file:avatar": []string{"ext:jpg,jpeg,png", "size:2000000"},
 		}
 		opts = govalidator.Options{
 			Request:         ctx.Request,
@@ -40,24 +42,35 @@ func Update(ctx *gin.Context)  {
 	}
 
 	if avatarFile, err := ctx.FormFile("avatar"); err == nil {
-		avatar := strings.RandomNumber(20)
-		avatarName := fmt.Sprintf("%s/uploads/avatars/%s.png", config.Map.StoragePath, avatar)
-		if err := ctx.SaveUploadedFile(avatarFile, avatarName); err != nil {
+		avatarName := strings.RandomNumber(20)
+		avatarObject := fmt.Sprintf("%s.png", avatarName)
+
+		afile, err := avatarFile.Open()
+		if err != nil {
 			sentry.CaptureException(err)
 			ctx.JSON(respond.Default.
 				SetStatusText("Failed!").
 				SetStatusCode(400).
 				RespondWithMessage("Upload failed. Please try again later!"))
-			return
 		}
-		protoUser.Avatar = avatar
+
+		_, err = storage.Client.PutObjectWithContext(ctx, "avatars", avatarObject, afile, -1, minio.PutObjectOptions{})
+		if err != nil {
+			sentry.CaptureException(err)
+			ctx.JSON(respond.Default.
+				SetStatusText("Failed!").
+				SetStatusCode(400).
+				RespondWithMessage("Upload failed. Please try again later!"))
+		}
+
+		protoUser.Avatar = avatarName
 	}
 
 	if fullname != "" {
 		protoUser.Fullname = fullname
 	}
 
-	mCtx, cancel := context.WithTimeout(ctx, 20 * time.Second)
+	mCtx, cancel := context.WithTimeout(ctx, 20*time.Second)
 	defer cancel()
 
 	response, err := grpc.UserServiceClient.UpdateUser(mCtx, &proto.UpdateUserRequest{
@@ -88,9 +101,9 @@ func UpdatePassword(ctx *gin.Context) {
 	var (
 		token = ctx.Request.Header.Get("Authorization")
 		rules = govalidator.MapData{
-			"current_password":     []string{"required"},
-			"new_password":         []string{"required"},
-			"verify_new_password":  []string{"required"},
+			"current_password":    []string{"required"},
+			"new_password":        []string{"required"},
+			"verify_new_password": []string{"required"},
 		}
 		opts = govalidator.Options{
 			Request:         ctx.Request,
@@ -105,15 +118,15 @@ func UpdatePassword(ctx *gin.Context) {
 		return
 	}
 
-	mCtx, cancel := context.WithTimeout(ctx, 20 * time.Second)
+	mCtx, cancel := context.WithTimeout(ctx, 20*time.Second)
 	defer cancel()
 
 	response, err := grpc.UserServiceClient.UpdatePassword(mCtx, &proto.UpdatePasswordRequest{
 		AuthRequest: &proto.AuthenticateRequest{
 			Token: []byte(token),
 		},
-		CurrentPassword: ctx.PostForm("current_password"),
-		NewPassword: ctx.PostForm("new_password"),
+		CurrentPassword:   ctx.PostForm("current_password"),
+		NewPassword:       ctx.PostForm("new_password"),
 		VerifyNewPassword: ctx.PostForm("verify_new_password"),
 	})
 

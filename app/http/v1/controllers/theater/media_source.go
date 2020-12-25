@@ -2,6 +2,9 @@ package theater
 
 import (
 	"context"
+	"net/http"
+	"time"
+
 	"github.com/CastyLab/api.server/app/components"
 	"github.com/CastyLab/api.server/app/models"
 	"github.com/CastyLab/api.server/grpc"
@@ -9,17 +12,17 @@ import (
 	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
 	"github.com/thedevsaddam/govalidator"
-	"net/http"
-	"time"
 )
 
 func GetMediaSources(ctx *gin.Context) {
 
 	var (
 		mediaSources = make([]*proto.MediaSource, 0)
-		token = ctx.Request.Header.Get("Authorization")
-		mCtx, _ = context.WithTimeout(ctx, 20 * time.Second)
+		token        = ctx.Request.Header.Get("Authorization")
+		mCtx, cancel = context.WithTimeout(ctx, 20*time.Second)
 	)
+
+	defer cancel()
 
 	response, err := grpc.TheaterServiceClient.GetMediaSources(mCtx, &proto.MediaSourceAuthRequest{
 		AuthRequest: &proto.AuthenticateRequest{
@@ -44,7 +47,7 @@ func GetMediaSources(ctx *gin.Context) {
 	return
 }
 
-func DeleteMediaSource(ctx *gin.Context)  {
+func DeleteMediaSource(ctx *gin.Context) {
 
 	var (
 		rules = govalidator.MapData{
@@ -89,7 +92,7 @@ func DeleteMediaSource(ctx *gin.Context)  {
 	return
 }
 
-func SelectNewMediaSource(ctx *gin.Context)  {
+func SelectNewMediaSource(ctx *gin.Context) {
 
 	var (
 		rules = govalidator.MapData{
@@ -131,7 +134,7 @@ func SelectNewMediaSource(ctx *gin.Context)  {
 
 }
 
-func ParseMediaSourceUri(ctx *gin.Context)  {
+func ParseMediaSourceUri(ctx *gin.Context) {
 
 	var (
 		rules = govalidator.MapData{
