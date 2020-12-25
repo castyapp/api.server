@@ -1,16 +1,17 @@
 package messages
 
 import (
+	"net/http"
+
 	"github.com/CastyLab/api.server/app/components"
 	"github.com/CastyLab/api.server/grpc"
 	"github.com/CastyLab/grpc.proto/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
 	"github.com/thedevsaddam/govalidator"
-	"net/http"
 )
 
-func Create(ctx *gin.Context)  {
+func Create(ctx *gin.Context) {
 
 	var (
 		rules = govalidator.MapData{
@@ -21,8 +22,8 @@ func Create(ctx *gin.Context)  {
 			Rules:           rules,
 			RequiredDefault: true,
 		}
-		receiverId  = ctx.Param("receiver_id")
-		token       = ctx.Request.Header.Get("Authorization")
+		receiverId = ctx.Param("receiver_id")
+		token      = ctx.Request.Header.Get("Authorization")
 	)
 
 	if validate := govalidator.New(opts).Validate(); validate.Encode() != "" {
@@ -31,12 +32,14 @@ func Create(ctx *gin.Context)  {
 		return
 	}
 
-	response, err := grpc.MessagesServiceClient.CreateMessage(ctx, &proto.CreateMessageRequest{
+	response, err := grpc.MessagesServiceClient.CreateMessage(ctx, &proto.MessageRequest{
 		AuthRequest: &proto.AuthenticateRequest{
 			Token: []byte(token),
 		},
-		RecieverId: receiverId,
-		Content: ctx.PostForm("content"),
+		Message: &proto.Message{
+			Reciever: &proto.User{Id: receiverId},
+			Content:  ctx.PostForm("content"),
+		},
 	})
 
 	if err != nil {
