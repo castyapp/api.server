@@ -2,6 +2,9 @@ package user
 
 import (
 	"context"
+	"net/http"
+	"time"
+
 	"github.com/CastyLab/api.server/app/components"
 	"github.com/CastyLab/api.server/app/components/recaptcha"
 	"github.com/CastyLab/api.server/config"
@@ -10,28 +13,28 @@ import (
 	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
 	"github.com/thedevsaddam/govalidator"
-	"net/http"
-	"time"
 )
 
 // Create a new user
-func Create(ctx *gin.Context)  {
+func Create(ctx *gin.Context) {
 
 	var (
 		rules = govalidator.MapData{
-			"fullname":                 []string{"min:4", "max:30"},
-			"password":                 []string{"required", "min:4", "max:80"},
-			"password_confirmation":    []string{"required", "min:4", "max:80"},
-			"username":                 []string{"required", "between:3,20"},
-			"email":                    []string{"required", "email"},
+			"fullname":              []string{"min:4", "max:30"},
+			"password":              []string{"required", "min:4", "max:80"},
+			"password_confirmation": []string{"required", "min:4", "max:80"},
+			"username":              []string{"required", "between:3,20"},
+			"email":                 []string{"required", "email"},
 		}
 		opts = govalidator.Options{
 			Request:         ctx.Request,
 			Rules:           rules,
 			RequiredDefault: true,
 		}
-		mCtx, _ = context.WithTimeout(ctx, 10 * time.Second)
+		mCtx, cancel = context.WithTimeout(ctx, 10*time.Second)
 	)
+
+	defer cancel()
 
 	if validate := govalidator.New(opts).Validate(); validate.Encode() != "" {
 		validations := components.GetValidationErrorsFromGoValidator(validate)
@@ -40,8 +43,8 @@ func Create(ctx *gin.Context)  {
 	}
 
 	if ctx.PostForm("password") != ctx.PostForm("password_confirmation") {
-		ctx.JSON(respond.Default.ValidationErrors(map[string] interface{} {
-			"password": []string {
+		ctx.JSON(respond.Default.ValidationErrors(map[string]interface{}{
+			"password": []string{
 				"Passwords are not match!",
 			},
 		}))
@@ -50,8 +53,8 @@ func Create(ctx *gin.Context)  {
 
 	if config.Map.App.Env == "prod" {
 		if _, err := recaptcha.Verify(ctx); err != nil {
-			ctx.JSON(respond.Default.ValidationErrors(map[string] interface{} {
-				"recaptcha": []string {
+			ctx.JSON(respond.Default.ValidationErrors(map[string]interface{}{
+				"recaptcha": []string{
 					"Captcha is invalid!",
 				},
 			}))
@@ -82,10 +85,10 @@ func Create(ctx *gin.Context)  {
 		return
 	}
 
-	ctx.JSON(respond.Default.Succeed(map[string] interface{} {
-		"token": string(response.Token),
+	ctx.JSON(respond.Default.Succeed(map[string]interface{}{
+		"token":           string(response.Token),
 		"refreshed_token": string(response.Token),
-		"type": "bearer",
+		"type":            "bearer",
 	}))
 	return
 }
