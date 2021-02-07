@@ -41,5 +41,5 @@ jobs:
         with:
           context: .
           file: ./Dockerfile-alpine
-          tags: castylab/api:dev-${{ steps.vars.outputs.sha_short }}
+          tags: castylab/api:alpine
           push: true
