@@ -8,6 +8,12 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+var validBuckets = []string{
+	"avatars",
+	"subtitles",
+	"posters",
+}
+
 type ConfMap struct {
 	App struct {
 		Version string `yaml:"version"`
@@ -23,11 +29,13 @@ type ConfMap struct {
 	} `yaml:"http"`
 	Secrets struct {
 		ObjectStorage struct {
-			Endpoint  string `yaml:"endpoint"`
-			Region    string `yaml:"region"`
-			AccessKey string `yaml:"access_key"`
-			SecretKey string `yaml:"secret_key"`
-		} `yaml:"object_storage"`
+			Endpoint           string `yaml:"endpoint"`
+			Region             string `yaml:"region"`
+			UseHttps           bool   `yaml:"use_https"`
+			InsecureSkipVerify bool   `yaml:"insecure_skip_verify"`
+			AccessKey          string `yaml:"access_key"`
+			SecretKey          string `yaml:"secret_key"`
+		}
 		SentryDsn      string `yaml:"sentry_dsn"`
 		HcaptchaSecret string `yaml:"hcaptcha_secret"`
 	} `yaml:"secrets"`
@@ -45,4 +53,13 @@ func Load(filename string) error {
 	}
 	log.Printf("ConfigMap Loaded: [version: %s]", Map.App.Version)
 	return nil
+}
+
+func IsValidBucketName(bucketname string) bool {
+	for _, bk := range validBuckets {
+		if bucketname == bk {
+			return true
+		}
+	}
+	return false
 }

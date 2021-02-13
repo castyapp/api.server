@@ -56,7 +56,7 @@ func main() {
 	defer sentry.Flush(5 * time.Second)
 
 	gin.SetMode(gin.ReleaseMode)
-	if config.Map.App.Env == "dev" {
+	if config.Map.App.Env == "dev" || config.Map.App.Debug {
 		gin.SetMode(gin.DebugMode)
 	}
 
