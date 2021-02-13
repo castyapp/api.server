@@ -1,6 +1,9 @@
 package storage
 
 import (
+	"crypto/tls"
+	"net/http"
+
 	"github.com/CastyLab/api.server/config"
 	"github.com/minio/minio-go"
 )
@@ -12,10 +15,17 @@ func Configure() (err error) {
 		config.Map.Secrets.ObjectStorage.Endpoint,
 		config.Map.Secrets.ObjectStorage.AccessKey,
 		config.Map.Secrets.ObjectStorage.SecretKey,
-		false,
+		config.Map.Secrets.ObjectStorage.UseHttps,
 	)
 	if err != nil {
 		return err
+	}
+	if config.Map.Secrets.ObjectStorage.InsecureSkipVerify {
+		Client.SetCustomTransport(&http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: true,
+			},
+		})
 	}
 	return nil
 }
