@@ -13,7 +13,7 @@ require (
 	github.com/gobwas/ws v1.0.3 // indirect
 	github.com/joho/godotenv v1.3.0
 	github.com/knadh/go-get-youtube v0.0.0-20191105144436-94a3fa9fdab3
-	github.com/minio/minio-go v6.0.14+incompatible // indirect
+	github.com/minio/minio-go v6.0.14+incompatible
 	github.com/thedevsaddam/govalidator v1.9.9
 	google.golang.org/grpc v1.34.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.0.1 // indirect
