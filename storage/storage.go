@@ -2,6 +2,7 @@ package storage
 
 import (
 	"crypto/tls"
+	"log"
 	"net/http"
 
 	"github.com/CastyLab/api.server/config"
@@ -11,6 +12,7 @@ import (
 var Client *minio.Client
 
 func Configure() (err error) {
+	log.Println(config.Map.Secrets)
 	Client, err = minio.NewV4(
 		config.Map.Secrets.ObjectStorage.Endpoint,
 		config.Map.Secrets.ObjectStorage.AccessKey,

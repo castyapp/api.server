@@ -35,7 +35,7 @@ type ConfMap struct {
 			InsecureSkipVerify bool   `yaml:"insecure_skip_verify"`
 			AccessKey          string `yaml:"access_key"`
 			SecretKey          string `yaml:"secret_key"`
-		}
+		} `yaml:"object_storage"`
 		SentryDsn      string `yaml:"sentry_dsn"`
 		HcaptchaSecret string `yaml:"hcaptcha_secret"`
 	} `yaml:"secrets"`
