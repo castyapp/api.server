@@ -2,12 +2,13 @@ package middlewares
 
 import (
 	"encoding/json"
-	"github.com/CastyLab/api.server/config"
-	"github.com/MrJoshLab/go-respond"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/castyapp/api.server/config"
+	"github.com/MrJoshLab/go-respond"
+	"github.com/gin-gonic/gin"
 )
 
 const (
@@ -15,19 +16,19 @@ const (
 )
 
 type SiteVerificationResponse struct {
-	Success     bool      `json:"success"`
-	ErrorCodes  []string  `json:"error-codes"`
-	ChallengeTs string    `json:"challenge_ts"`
-	Hostname    string    `json:"hostname"`
-	Credit      bool      `json:"credit"`
+	Success     bool     `json:"success"`
+	ErrorCodes  []string `json:"error-codes"`
+	ChallengeTs string   `json:"challenge_ts"`
+	Hostname    string   `json:"hostname"`
+	Credit      bool     `json:"credit"`
 }
 
-func HcaptchaMiddleware(ctx *gin.Context)  {
+func HcaptchaMiddleware(ctx *gin.Context) {
 
 	hcaptchaHeader := ctx.GetHeader("h-captcha-response")
 	if hcaptchaHeader == "" {
-		ctx.AbortWithStatusJSON(respond.Default.ValidationErrors(map[string] interface{} {
-			"recaptcha": []string {
+		ctx.AbortWithStatusJSON(respond.Default.ValidationErrors(map[string]interface{}{
+			"recaptcha": []string{
 				"Captcha is required!",
 			},
 		}))
@@ -35,17 +36,17 @@ func HcaptchaMiddleware(ctx *gin.Context)  {
 	}
 
 	var (
-		params = url.Values{}
-		result = new(SiteVerificationResponse)
-		token  = ctx.GetHeader("h-captcha-response")
-		invalidCode, invalidResponse = respond.Default.ValidationErrors(map[string] interface{} {
-			"recaptcha": []string {
+		params                       = url.Values{}
+		result                       = new(SiteVerificationResponse)
+		token                        = ctx.GetHeader("h-captcha-response")
+		invalidCode, invalidResponse = respond.Default.ValidationErrors(map[string]interface{}{
+			"recaptcha": []string{
 				"Captcha is invalid!",
 			},
 		})
 	)
 
-	params.Set("secret", config.Map.Secrets.HcaptchaSecret)
+	params.Set("secret", config.Map.Recaptcha.Secret)
 	params.Set("response", token)
 	body := strings.NewReader(params.Encode())
 

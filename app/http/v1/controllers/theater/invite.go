@@ -3,28 +3,30 @@ package theater
 import (
 	"context"
 	"encoding/json"
-	"github.com/CastyLab/api.server/app/components"
-	"github.com/CastyLab/api.server/app/http/v1/requests"
-	"github.com/CastyLab/api.server/grpc"
-	"github.com/CastyLab/grpc.proto/proto"
-	"github.com/MrJoshLab/go-respond"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"time"
+
+	"github.com/castyapp/libcasty-protocol-go/proto"
+	"github.com/MrJoshLab/go-respond"
+	"github.com/castyapp/api.server/app/components"
+	"github.com/castyapp/api.server/app/http/v1/requests"
+	"github.com/castyapp/api.server/grpc"
+	"github.com/gin-gonic/gin"
 )
 
-func Invite(ctx *gin.Context)  {
+func Invite(ctx *gin.Context) {
 
 	var (
-		token   = ctx.Request.Header.Get("Authorization")
-		mCtx, _ = context.WithTimeout(ctx, 10 * time.Second)
-		request = new(requests.InviteToTheaterRequest)
+		token            = ctx.GetHeader("Authorization")
+		request          = new(requests.InviteToTheaterRequest)
+		mCtx, cancelFunc = context.WithTimeout(ctx, 10*time.Second)
 	)
+	defer cancelFunc()
 
 	rawJson, err := ctx.GetRawData()
 	if err := json.Unmarshal(rawJson, request); err != nil {
-		ctx.JSON(respond.Default.ValidationErrors(map[string] interface{} {
-			"friend_ids": []string {
+		ctx.JSON(respond.Default.ValidationErrors(map[string]interface{}{
+			"friend_ids": []string{
 				"Could not get parameters from raw json data!",
 			},
 		}))
@@ -32,8 +34,8 @@ func Invite(ctx *gin.Context)  {
 	}
 
 	if len(request.FriendIDs) == 0 {
-		ctx.JSON(respond.Default.ValidationErrors(map[string] interface{} {
-			"friend_ids": []string {
+		ctx.JSON(respond.Default.ValidationErrors(map[string]interface{}{
+			"friend_ids": []string{
 				"You should at least pass 1 friend id!",
 			},
 		}))

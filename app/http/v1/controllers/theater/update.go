@@ -1,24 +1,25 @@
 package theater
 
 import (
-	"github.com/CastyLab/api.server/app/components"
-	"github.com/CastyLab/api.server/app/http/v1/requests"
-	"github.com/CastyLab/api.server/grpc"
-	"github.com/CastyLab/grpc.proto/proto"
+	"net/http"
+	"strconv"
+
+	"github.com/castyapp/api.server/app/components"
+	"github.com/castyapp/api.server/app/http/v1/requests"
+	"github.com/castyapp/api.server/grpc"
+	"github.com/castyapp/libcasty-protocol-go/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	"net/http"
-	"strconv"
 )
 
-func Update(ctx *gin.Context)  {
+func Update(ctx *gin.Context) {
 
 	var (
 		req = &requests.UpdateTheaterRequest{
 			Description: ctx.PostForm("description"),
 		}
-		token = ctx.Request.Header.Get("Authorization")
+		token = ctx.GetHeader("Authorization")
 	)
 
 	privacyInt, err := strconv.Atoi(ctx.PostForm("privacy"))
@@ -39,8 +40,8 @@ func Update(ctx *gin.Context)  {
 
 	response, err := grpc.TheaterServiceClient.UpdateTheater(ctx, &proto.TheaterAuthRequest{
 		Theater: &proto.Theater{
-			Description: req.Description,
-			Privacy: req.Privacy,
+			Description:       req.Description,
+			Privacy:           req.Privacy,
 			VideoPlayerAccess: req.VideoPlayerAccess,
 		},
 		AuthRequest: &proto.AuthenticateRequest{

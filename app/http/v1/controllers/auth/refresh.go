@@ -1,13 +1,14 @@
 package auth
 
 import (
-	"github.com/CastyLab/api.server/app/components"
-	"github.com/CastyLab/api.server/grpc"
-	"github.com/CastyLab/grpc.proto/proto"
-	"github.com/MrJoshLab/go-respond"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"strings"
+
+	"github.com/castyapp/libcasty-protocol-go/proto"
+	"github.com/MrJoshLab/go-respond"
+	"github.com/castyapp/api.server/app/components"
+	"github.com/castyapp/api.server/grpc"
+	"github.com/gin-gonic/gin"
 )
 
 // Refresh expired authentication token
@@ -40,10 +41,10 @@ func Refresh(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(respond.Default.Succeed(map[string] interface{} {
-		"token": string(response.Token),
-		"refreshed_token": string(response.RefreshedToken),
-		"type": "bearer",
+	ctx.JSON(respond.Default.Succeed(map[string]interface{}{
+		"token":         string(response.Token),
+		"refresh_token": string(response.RefreshedToken),
+		"type":          "bearer",
 	}))
 	return
 }

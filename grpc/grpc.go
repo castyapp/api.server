@@ -2,8 +2,9 @@ package grpc
 
 import (
 	"fmt"
-	"github.com/CastyLab/api.server/config"
-	"github.com/CastyLab/grpc.proto/proto"
+
+	"github.com/castyapp/api.server/config"
+	"github.com/castyapp/libcasty-protocol-go/proto"
 	"google.golang.org/grpc"
 )
 
@@ -26,8 +27,8 @@ func Configure() error {
 		return fmt.Errorf("could not dialing grpc.server: %v", err)
 	}
 
-	UserServiceClient    = proto.NewUserServiceClient(conn)
-	AuthServiceClient    = proto.NewAuthServiceClient(conn)
+	UserServiceClient = proto.NewUserServiceClient(conn)
+	AuthServiceClient = proto.NewAuthServiceClient(conn)
 	TheaterServiceClient = proto.NewTheaterServiceClient(conn)
 	MessagesServiceClient = proto.NewMessagesServiceClient(conn)
 	return nil

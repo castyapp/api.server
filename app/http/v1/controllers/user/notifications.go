@@ -2,22 +2,24 @@ package user
 
 import (
 	"context"
-	"github.com/CastyLab/api.server/app/components"
-	"github.com/CastyLab/api.server/grpc"
-	"github.com/CastyLab/grpc.proto/proto"
-	"github.com/MrJoshLab/go-respond"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"time"
+
+	"github.com/castyapp/api.server/app/components"
+	"github.com/castyapp/api.server/grpc"
+	"github.com/castyapp/libcasty-protocol-go/proto"
+	"github.com/MrJoshLab/go-respond"
+	"github.com/gin-gonic/gin"
 )
 
-func Notifications(ctx *gin.Context)  {
+func Notifications(ctx *gin.Context) {
 
 	var (
 		notifications = make([]*proto.Notification, 0)
-		token = ctx.Request.Header.Get("Authorization")
-		mCtx, _ = context.WithTimeout(ctx, 20 * time.Second)
+		token         = ctx.GetHeader("Authorization")
+		mCtx, cancel  = context.WithTimeout(ctx, 20*time.Second)
 	)
+	defer cancel()
 
 	response, err := grpc.UserServiceClient.GetNotifications(mCtx, &proto.AuthenticateRequest{
 		Token: []byte(token),
@@ -36,19 +38,20 @@ func Notifications(ctx *gin.Context)  {
 
 	ctx.JSON(respond.Default.SetStatusText("success").
 		SetStatusCode(http.StatusOK).
-		RespondWithResult(map[string] interface{} {
+		RespondWithResult(map[string]interface{}{
 			"notifications": notifications,
-			"unread_count": response.UnreadCount,
+			"unread_count":  response.UnreadCount,
 		}))
 	return
 }
 
-func ReadAllNotifications(ctx *gin.Context)  {
+func ReadAllNotifications(ctx *gin.Context) {
 
 	var (
-		token = ctx.Request.Header.Get("Authorization")
-		mCtx, _ = context.WithTimeout(ctx, 20 * time.Second)
+		token        = ctx.GetHeader("Authorization")
+		mCtx, cancel = context.WithTimeout(ctx, 20*time.Second)
 	)
+	defer cancel()
 
 	response, err := grpc.UserServiceClient.ReadAllNotifications(mCtx, &proto.AuthenticateRequest{
 		Token: []byte(token),
