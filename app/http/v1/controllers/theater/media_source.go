@@ -5,20 +5,21 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/castyapp/libcasty-protocol-go/proto"
+	"github.com/MrJoshLab/go-respond"
 	"github.com/castyapp/api.server/app/components"
+	"github.com/castyapp/api.server/app/http/v1/requests"
+	"github.com/castyapp/api.server/app/http/v1/validators"
 	"github.com/castyapp/api.server/app/models"
 	"github.com/castyapp/api.server/grpc"
-	"github.com/CastyLab/grpc.proto/proto"
-	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
-	"github.com/thedevsaddam/govalidator"
 )
 
 func GetMediaSources(ctx *gin.Context) {
 
 	var (
 		mediaSources = make([]*proto.MediaSource, 0)
-		token        = ctx.Request.Header.Get("Authorization")
+		token        = ctx.GetHeader("Authorization")
 		mCtx, cancel = context.WithTimeout(ctx, 20*time.Second)
 	)
 
@@ -50,28 +51,22 @@ func GetMediaSources(ctx *gin.Context) {
 func DeleteMediaSource(ctx *gin.Context) {
 
 	var (
-		rules = govalidator.MapData{
-			"source_id": []string{"required"},
+		token   = ctx.GetHeader("Authorization")
+		request = &requests.MediaSourceRequest{
+			SourceId: ctx.Query("source_id"),
 		}
-		opts = govalidator.Options{
-			Request:         ctx.Request,
-			Rules:           rules,
-			RequiredDefault: true,
-		}
-		token = ctx.Request.Header.Get("Authorization")
 	)
 
-	if validate := govalidator.New(opts).Validate(); validate.Encode() != "" {
-		validations := components.GetValidationErrorsFromGoValidator(validate)
-		ctx.JSON(respond.Default.ValidationErrors(validations))
+	if errors := validators.NewValidator(request); len(errors) != 0 {
+		ctx.JSON(respond.Default.ValidationErrors(errors))
 		return
 	}
 
-	response, err := grpc.TheaterServiceClient.RemoveMediaSource(ctx, &proto.MediaSourceRemoveRequest{
+	_, err := grpc.TheaterServiceClient.RemoveMediaSource(ctx, &proto.MediaSourceRemoveRequest{
 		AuthRequest: &proto.AuthenticateRequest{
 			Token: []byte(token),
 		},
-		MediaSourceId: ctx.Query("source_id"),
+		MediaSourceId: request.SourceId,
 	})
 
 	if err != nil {
@@ -81,13 +76,6 @@ func DeleteMediaSource(ctx *gin.Context) {
 		}
 	}
 
-	if response.Code != http.StatusOK {
-		ctx.JSON(respond.Default.SetStatusCode(http.StatusBadRequest).
-			SetStatusText("failed").
-			RespondWithMessage("Could not delete media source!"))
-		return
-	}
-
 	ctx.JSON(respond.Default.UpdateSucceeded())
 	return
 }
@@ -95,21 +83,14 @@ func DeleteMediaSource(ctx *gin.Context) {
 func SelectNewMediaSource(ctx *gin.Context) {
 
 	var (
-		rules = govalidator.MapData{
-			"source_id": []string{"required"},
+		token   = ctx.GetHeader("Authorization")
+		request = &requests.MediaSourceRequest{
+			SourceId: ctx.PostForm("source_id"),
 		}
-		opts = govalidator.Options{
-			Request:         ctx.Request,
-			Rules:           rules,
-			RequiredDefault: true,
-		}
-		token = ctx.Request.Header.Get("Authorization")
 	)
 
-	if validate := govalidator.New(opts).Validate(); validate.Encode() != "" {
-
-		validations := components.GetValidationErrorsFromGoValidator(validate)
-		ctx.JSON(respond.Default.ValidationErrors(validations))
+	if errors := validators.NewValidator(request); len(errors) != 0 {
+		ctx.JSON(respond.Default.ValidationErrors(errors))
 		return
 	}
 
@@ -118,7 +99,7 @@ func SelectNewMediaSource(ctx *gin.Context) {
 			Token: []byte(token),
 		},
 		Media: &proto.MediaSource{
-			Id: ctx.PostForm("source_id"),
+			Id: request.SourceId,
 		},
 	})
 
@@ -136,25 +117,16 @@ func SelectNewMediaSource(ctx *gin.Context) {
 
 func ParseMediaSourceUri(ctx *gin.Context) {
 
-	var (
-		rules = govalidator.MapData{
-			"source": []string{"required", "media_source_uri"},
-		}
-		opts = govalidator.Options{
-			Request:         ctx.Request,
-			Rules:           rules,
-			RequiredDefault: true,
-		}
-	)
-
-	if validate := govalidator.New(opts).Validate(); validate.Encode() != "" {
-		validations := components.GetValidationErrorsFromGoValidator(validate)
-		ctx.JSON(respond.Default.ValidationErrors(validations))
+	request := &requests.NewMediaSourceRequest{
+		Source: ctx.PostForm("media_source_uri"),
+	}
+	if errors := validators.NewValidator(request); len(errors) != 0 {
+		ctx.JSON(respond.Default.ValidationErrors(errors))
 		return
 	}
 
 	accessToken := ctx.GetHeader("Service-Authorization")
-	mediaSource := models.NewMediaSource(ctx.PostForm("source"), accessToken)
+	mediaSource := models.NewMediaSource(request.Source, accessToken)
 
 	if err := mediaSource.Parse(); err != nil {
 		ctx.JSON(respond.Default.
@@ -173,7 +145,6 @@ func ParseMediaSourceUri(ctx *gin.Context) {
 	}
 
 	if mediaSource.IsTorrent() {
-
 		ctx.JSON(respond.Default.SetStatusCode(http.StatusNotAcceptable).
 			SetStatusText("Failed").
 			RespondWithMessage("Torrent links are not available yet!"))
@@ -187,25 +158,19 @@ func ParseMediaSourceUri(ctx *gin.Context) {
 func AddNewMediaSource(ctx *gin.Context) {
 
 	var (
-		token = ctx.Request.Header.Get("Authorization")
-		rules = govalidator.MapData{
-			"source": []string{"required", "media_source_uri"},
-		}
-		opts = govalidator.Options{
-			Request:         ctx.Request,
-			Rules:           rules,
-			RequiredDefault: true,
+		token   = ctx.GetHeader("Authorization")
+		request = &requests.NewMediaSourceRequest{
+			Source: ctx.PostForm("media_source_uri"),
 		}
 	)
 
-	if validate := govalidator.New(opts).Validate(); validate.Encode() != "" {
-		validations := components.GetValidationErrorsFromGoValidator(validate)
-		ctx.JSON(respond.Default.ValidationErrors(validations))
+	if errors := validators.NewValidator(request); len(errors) != 0 {
+		ctx.JSON(respond.Default.ValidationErrors(errors))
 		return
 	}
 
 	accessToken := ctx.GetHeader("Service-Authorization")
-	mediaSource := models.NewMediaSource(ctx.PostForm("source"), accessToken)
+	mediaSource := models.NewMediaSource(request.Source, accessToken)
 
 	if err := mediaSource.Parse(); err != nil {
 		ctx.JSON(respond.Default.

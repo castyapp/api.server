@@ -2,14 +2,13 @@ package user
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"time"
 
+	"github.com/castyapp/libcasty-protocol-go/proto"
+	"github.com/MrJoshLab/go-respond"
 	"github.com/castyapp/api.server/app/components"
 	"github.com/castyapp/api.server/grpc"
-	"github.com/CastyLab/grpc.proto/proto"
-	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,7 +16,7 @@ func UpdateConnection(ctx *gin.Context) {
 
 	var (
 		connections  = make([]*proto.Connection, 0)
-		token        = ctx.Request.Header.Get("Authorization")
+		token        = ctx.GetHeader("Authorization")
 		mCtx, cancel = context.WithTimeout(ctx, 20*time.Second)
 	)
 
@@ -27,8 +26,6 @@ func UpdateConnection(ctx *gin.Context) {
 	switch serviceName := ctx.Param("service"); serviceName {
 	case "google":
 		service = proto.Connection_GOOGLE
-	case "discord":
-		service = proto.Connection_DISCORD
 	case "spotify":
 		service = proto.Connection_SPOTIFY
 	default:
@@ -49,7 +46,6 @@ func UpdateConnection(ctx *gin.Context) {
 	})
 
 	if err != nil {
-		log.Println(err)
 		if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
 			ctx.JSON(code, result)
 			return
@@ -76,7 +72,7 @@ func GetConnection(ctx *gin.Context) {
 
 	var (
 		connections  = make([]*proto.Connection, 0)
-		token        = ctx.Request.Header.Get("Authorization")
+		token        = ctx.GetHeader("Authorization")
 		mCtx, cancel = context.WithTimeout(ctx, 20*time.Second)
 	)
 
@@ -86,8 +82,6 @@ func GetConnection(ctx *gin.Context) {
 	switch serviceName := ctx.Param("service"); serviceName {
 	case "google":
 		service = proto.Connection_GOOGLE
-	case "discord":
-		service = proto.Connection_DISCORD
 	case "spotify":
 		service = proto.Connection_SPOTIFY
 	default:
@@ -134,10 +128,9 @@ func GetConnections(ctx *gin.Context) {
 
 	var (
 		connections  = make([]*proto.Connection, 0)
-		token        = ctx.Request.Header.Get("Authorization")
+		token        = ctx.GetHeader("Authorization")
 		mCtx, cancel = context.WithTimeout(ctx, 20*time.Second)
 	)
-
 	defer cancel()
 
 	response, err := grpc.UserServiceClient.GetConnections(mCtx, &proto.AuthenticateRequest{

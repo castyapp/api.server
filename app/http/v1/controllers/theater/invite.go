@@ -6,18 +6,18 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/castyapp/libcasty-protocol-go/proto"
+	"github.com/MrJoshLab/go-respond"
 	"github.com/castyapp/api.server/app/components"
 	"github.com/castyapp/api.server/app/http/v1/requests"
 	"github.com/castyapp/api.server/grpc"
-	"github.com/CastyLab/grpc.proto/proto"
-	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
 )
 
 func Invite(ctx *gin.Context) {
 
 	var (
-		token            = ctx.Request.Header.Get("Authorization")
+		token            = ctx.GetHeader("Authorization")
 		request          = new(requests.InviteToTheaterRequest)
 		mCtx, cancelFunc = context.WithTimeout(ctx, 10*time.Second)
 	)

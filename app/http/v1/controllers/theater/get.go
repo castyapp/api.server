@@ -1,10 +1,10 @@
 package theater
 
 import (
+	"github.com/castyapp/libcasty-protocol-go/proto"
+	"github.com/MrJoshLab/go-respond"
 	"github.com/castyapp/api.server/app/components"
 	"github.com/castyapp/api.server/grpc"
-	"github.com/CastyLab/grpc.proto/proto"
-	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
 )
 
@@ -12,7 +12,7 @@ import (
 func Theater(ctx *gin.Context) {
 
 	var (
-		token = ctx.Request.Header.Get("Authorization")
+		token = ctx.GetHeader("Authorization")
 		req   = new(proto.GetTheaterRequest)
 	)
 

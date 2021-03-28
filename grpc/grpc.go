@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/castyapp/api.server/config"
-	"github.com/CastyLab/grpc.proto/proto"
+	"github.com/castyapp/libcasty-protocol-go/proto"
 	"google.golang.org/grpc"
 )
 

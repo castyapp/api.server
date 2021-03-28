@@ -1,22 +1,34 @@
 package validators
 
 import (
-	"errors"
-	"fmt"
 	"net/url"
 	"strings"
+
+	ut "github.com/go-playground/universal-translator"
+	"gopkg.in/go-playground/validator.v9"
 )
 
-func MediaSourceUri(field string, _ string, _ string, value interface{}) error {
-	val := value.(string)
-	if val == "" {
-		return nil
-	}
-	if uri, err := url.ParseRequestURI(val); err == nil {
-		if strings.Contains(uri.Host, "spotify") {
-			return nil
-		}
-		return nil
-	}
-	return errors.New(fmt.Sprintf("The %s field format is invalid", field))
+func init() {
+	RegisterValidator(&Validator{
+		Name:                     "media_source_uri",
+		CallValidationEvenIfNull: true,
+		HandleFunc: func(fl validator.FieldLevel) bool {
+			value := fl.Field().String()
+			uri, err := url.ParseRequestURI(value)
+			if err != nil {
+				return false
+			}
+			if strings.Contains(uri.Host, "spotify") {
+				return true
+			}
+			return false
+		},
+		TranslationRegister: func(ut ut.Translator) error {
+			return ut.Add("media_source_uri", "MediaSourceUri is not valid", true)
+		},
+		TranslationFunc: func(ut ut.Translator, fe validator.FieldError) (t string) {
+			t, _ = ut.T("media_source_uri", "MediaSourceUri")
+			return
+		},
+	})
 }

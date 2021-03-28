@@ -14,7 +14,6 @@ import (
 	"github.com/castyapp/api.server/storage"
 	"github.com/getsentry/sentry-go"
 	"github.com/gin-gonic/gin"
-	"github.com/thedevsaddam/govalidator"
 )
 
 var (
@@ -34,6 +33,10 @@ func init() {
 
 	if err := config.Load(*configFileName); err != nil {
 		log.Fatal(fmt.Errorf("could not load config: %v", err))
+	}
+
+	if err := validators.Configure(); err != nil {
+		log.Fatal(fmt.Errorf("could not configure validators: %v", err))
 	}
 
 	if err := grpc.Configure(); err != nil {
@@ -65,10 +68,6 @@ func main() {
 
 	router := gin.New()
 	router.Use(middlewares.CORSMiddleware)
-
-	// register unique validator
-	govalidator.AddCustomRule("access", validators.Access)
-	govalidator.AddCustomRule("media_source_uri", validators.MediaSourceUri)
 
 	app.RegisterRoutes(router)
 

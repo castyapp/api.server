@@ -2,47 +2,41 @@ package user
 
 import (
 	"context"
-	"net/http"
 	"time"
 
+	"github.com/castyapp/libcasty-protocol-go/proto"
+	"github.com/MrJoshLab/go-respond"
 	"github.com/castyapp/api.server/app/components"
 	"github.com/castyapp/api.server/app/components/recaptcha"
+	"github.com/castyapp/api.server/app/http/v1/requests"
+	"github.com/castyapp/api.server/app/http/v1/validators"
 	"github.com/castyapp/api.server/config"
 	"github.com/castyapp/api.server/grpc"
-	"github.com/CastyLab/grpc.proto/proto"
-	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
-	"github.com/thedevsaddam/govalidator"
 )
 
 // Create a new user
 func Create(ctx *gin.Context) {
 
 	var (
-		rules = govalidator.MapData{
-			"fullname":              []string{"min:4", "max:30"},
-			"password":              []string{"required", "min:4", "max:80"},
-			"password_confirmation": []string{"required", "min:4", "max:80"},
-			"username":              []string{"required", "between:3,20"},
-			"email":                 []string{"required", "email"},
-		}
-		opts = govalidator.Options{
-			Request:         ctx.Request,
-			Rules:           rules,
-			RequiredDefault: true,
-		}
 		mCtx, cancel = context.WithTimeout(ctx, 10*time.Second)
+		request      = &requests.CreateUserRequest{
+			Fullname:             ctx.PostForm("username"),
+			Username:             ctx.PostForm("username"),
+			Email:                ctx.PostForm("email"),
+			Password:             ctx.PostForm("password"),
+			PasswordConfirmation: ctx.PostForm("password_confirmation"),
+		}
 	)
 
 	defer cancel()
 
-	if validate := govalidator.New(opts).Validate(); validate.Encode() != "" {
-		validations := components.GetValidationErrorsFromGoValidator(validate)
-		ctx.JSON(respond.Default.ValidationErrors(validations))
+	if errors := validators.NewValidator(request); len(errors) != 0 {
+		ctx.JSON(respond.Default.ValidationErrors(errors))
 		return
 	}
 
-	if ctx.PostForm("password") != ctx.PostForm("password_confirmation") {
+	if request.Password != request.PasswordConfirmation {
 		ctx.JSON(respond.Default.ValidationErrors(map[string]interface{}{
 			"password": []string{
 				"Passwords are not match!",
@@ -64,10 +58,10 @@ func Create(ctx *gin.Context) {
 
 	response, err := grpc.UserServiceClient.CreateUser(mCtx, &proto.CreateUserRequest{
 		User: &proto.User{
-			Fullname: ctx.PostForm("fullname"),
-			Username: ctx.PostForm("username"),
-			Email:    ctx.PostForm("email"),
-			Password: ctx.PostForm("password"),
+			Fullname: request.Fullname,
+			Username: request.Username,
+			Email:    request.Email,
+			Password: request.Password,
 		},
 	})
 
@@ -78,17 +72,10 @@ func Create(ctx *gin.Context) {
 		}
 	}
 
-	if response.Code != http.StatusOK {
-		ctx.JSON(respond.Default.SetStatusCode(http.StatusInternalServerError).
-			SetStatusText("failed").
-			RespondWithMessage("Could not create user."))
-		return
-	}
-
 	ctx.JSON(respond.Default.Succeed(map[string]interface{}{
-		"token":           string(response.Token),
-		"refreshed_token": string(response.Token),
-		"type":            "bearer",
+		"token":         string(response.Token),
+		"refresh_token": string(response.Token),
+		"type":          "bearer",
 	}))
 	return
 }

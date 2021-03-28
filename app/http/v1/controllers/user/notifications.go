@@ -7,7 +7,7 @@ import (
 
 	"github.com/castyapp/api.server/app/components"
 	"github.com/castyapp/api.server/grpc"
-	"github.com/CastyLab/grpc.proto/proto"
+	"github.com/castyapp/libcasty-protocol-go/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
 )
@@ -16,7 +16,7 @@ func Notifications(ctx *gin.Context) {
 
 	var (
 		notifications = make([]*proto.Notification, 0)
-		token         = ctx.Request.Header.Get("Authorization")
+		token         = ctx.GetHeader("Authorization")
 		mCtx, cancel  = context.WithTimeout(ctx, 20*time.Second)
 	)
 	defer cancel()
@@ -48,7 +48,7 @@ func Notifications(ctx *gin.Context) {
 func ReadAllNotifications(ctx *gin.Context) {
 
 	var (
-		token        = ctx.Request.Header.Get("Authorization")
+		token        = ctx.GetHeader("Authorization")
 		mCtx, cancel = context.WithTimeout(ctx, 20*time.Second)
 	)
 	defer cancel()

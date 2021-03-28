@@ -53,7 +53,7 @@ s3 {
 ### Recaptcha setup
 
 `recaptcha.secret` is a secret key that you get on hcaptcha admin console!
-for more information about hcaptcha [click here](https://www.hcaptcha.com/)
+* for more information about hcaptcha [click here](https://www.hcaptcha.com/)
 
 `recaptcha.type` is only available for hcaptcha, google will add soon!
 
@@ -65,9 +65,7 @@ recaptcha {
 }
 ```
 
-for more information about hcaptcha [click here](https://www.hcaptcha.com/)
-
-You're ready to Go!
+# You're ready to Go!
 
 ## Run project with go compiler
 You can simply run the project with following command

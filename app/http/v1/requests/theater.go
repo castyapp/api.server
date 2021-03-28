@@ -1,8 +1,8 @@
 package requests
 
 import (
+	"github.com/castyapp/libcasty-protocol-go/proto"
 	"github.com/castyapp/api.server/app/models"
-	"github.com/CastyLab/grpc.proto/proto"
 )
 
 type UpdateTheaterRequest struct {
@@ -15,6 +15,18 @@ type InviteToTheaterRequest struct {
 	FriendIDs []string `json:"friend_ids" validate:"required,gt=0,dive,required"`
 }
 
+type AddSubtitleRequest struct {
+	Lang string `validate:"required"`
+}
+
 type AddSubtitlesRequest struct {
 	Subtitles []models.Subtitle `json:"subtitles" validate:"required,gt=0,dive,required"`
+}
+
+type NewMediaSourceRequest struct {
+	Source string `validate:"required,media_source_uri"`
+}
+
+type MediaSourceRequest struct {
+	SourceId string `validate:"required"`
 }

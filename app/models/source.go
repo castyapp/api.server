@@ -12,7 +12,7 @@ import (
 
 	"github.com/castyapp/api.server/app/components/spotify"
 	rnd "github.com/castyapp/api.server/app/components/strings"
-	"github.com/CastyLab/grpc.proto/proto"
+	"github.com/castyapp/libcasty-protocol-go/proto"
 	"github.com/knadh/go-get-youtube/youtube"
 )
 

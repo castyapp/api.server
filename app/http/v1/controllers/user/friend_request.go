@@ -5,12 +5,13 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/castyapp/api.server/app/components"
-	"github.com/castyapp/api.server/grpc"
-	"github.com/CastyLab/grpc.proto/proto"
+	"github.com/castyapp/libcasty-protocol-go/proto"
 	"github.com/MrJoshLab/go-respond"
+	"github.com/castyapp/api.server/app/components"
+	"github.com/castyapp/api.server/app/http/v1/requests"
+	"github.com/castyapp/api.server/app/http/v1/validators"
+	"github.com/castyapp/api.server/grpc"
 	"github.com/gin-gonic/gin"
-	"github.com/thedevsaddam/govalidator"
 )
 
 func SendFriendRequest(ctx *gin.Context) {
@@ -18,7 +19,7 @@ func SendFriendRequest(ctx *gin.Context) {
 	var (
 		friendId     = ctx.Param("friend_id")
 		mCtx, cancel = context.WithTimeout(ctx, 20*time.Second)
-		token        = ctx.Request.Header.Get("Authorization")
+		token        = ctx.GetHeader("Authorization")
 	)
 	defer cancel()
 
@@ -58,30 +59,23 @@ func SendFriendRequest(ctx *gin.Context) {
 func AcceptFriendRequest(ctx *gin.Context) {
 
 	var (
-		rules = govalidator.MapData{
-			"request_id": []string{"required"},
-		}
-		opts = govalidator.Options{
-			Request:         ctx.Request,
-			Rules:           rules,
-			RequiredDefault: true,
+		mCtx, cancel = context.WithTimeout(ctx, 20*time.Second)
+		token        = ctx.GetHeader("Authorization")
+		request      = &requests.AcceptFriendRequest{
+			RequestId: ctx.PostForm("request_id"),
 		}
 	)
+	defer cancel()
 
-	if validate := govalidator.New(opts).Validate(); validate.Encode() != "" {
-
-		validations := components.GetValidationErrorsFromGoValidator(validate)
-		ctx.JSON(respond.Default.ValidationErrors(validations))
+	if errors := validators.NewValidator(request); len(errors) != 0 {
+		ctx.JSON(respond.Default.ValidationErrors(errors))
 		return
 	}
 
-	mCtx, cancel := context.WithTimeout(ctx, 20*time.Second)
-	defer cancel()
-
 	response, err := grpc.UserServiceClient.AcceptFriendRequest(mCtx, &proto.FriendRequest{
-		RequestId: ctx.PostForm("request_id"),
+		RequestId: request.RequestId,
 		AuthRequest: &proto.AuthenticateRequest{
-			Token: []byte(ctx.Request.Header.Get("Authorization")),
+			Token: []byte(token),
 		},
 	})
 

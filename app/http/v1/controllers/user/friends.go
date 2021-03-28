@@ -3,7 +3,7 @@ package user
 import (
 	"github.com/castyapp/api.server/app/components"
 	"github.com/castyapp/api.server/grpc"
-	"github.com/CastyLab/grpc.proto/proto"
+	"github.com/castyapp/libcasty-protocol-go/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
 )
@@ -13,7 +13,7 @@ func GetPendingFriendRequests(ctx *gin.Context) {
 	friendRequests := make([]*proto.FriendRequest, 0)
 
 	response, err := grpc.UserServiceClient.GetPendingFriendRequests(ctx, &proto.AuthenticateRequest{
-		Token: []byte(ctx.Request.Header.Get("Authorization")),
+		Token: []byte(ctx.GetHeader("Authorization")),
 	})
 
 	if err != nil {
@@ -35,7 +35,7 @@ func GetFriend(ctx *gin.Context) {
 
 	var (
 		friendId = ctx.Param("friend_id")
-		token    = ctx.Request.Header.Get("Authorization")
+		token    = ctx.GetHeader("Authorization")
 	)
 
 	response, err := grpc.UserServiceClient.GetFriend(ctx, &proto.FriendRequest{
@@ -60,7 +60,7 @@ func GetFriendRequest(ctx *gin.Context) {
 
 	var (
 		requestID = ctx.Param("friend_id")
-		token     = ctx.Request.Header.Get("Authorization")
+		token     = ctx.GetHeader("Authorization")
 	)
 
 	response, err := grpc.UserServiceClient.GetFriendRequest(ctx, &proto.FriendRequest{
@@ -85,7 +85,7 @@ func GetFriends(ctx *gin.Context) {
 
 	friends := make([]*proto.User, 0)
 	response, err := grpc.UserServiceClient.GetFriends(ctx, &proto.AuthenticateRequest{
-		Token: []byte(ctx.Request.Header.Get("Authorization")),
+		Token: []byte(ctx.GetHeader("Authorization")),
 	})
 
 	if err != nil {

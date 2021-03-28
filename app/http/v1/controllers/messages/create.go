@@ -3,32 +3,27 @@ package messages
 import (
 	"net/http"
 
-	"github.com/castyapp/api.server/app/components"
-	"github.com/castyapp/api.server/grpc"
-	"github.com/CastyLab/grpc.proto/proto"
+	"github.com/castyapp/libcasty-protocol-go/proto"
 	"github.com/MrJoshLab/go-respond"
+	"github.com/castyapp/api.server/app/components"
+	"github.com/castyapp/api.server/app/http/v1/requests"
+	"github.com/castyapp/api.server/app/http/v1/validators"
+	"github.com/castyapp/api.server/grpc"
 	"github.com/gin-gonic/gin"
-	"github.com/thedevsaddam/govalidator"
 )
 
 func Create(ctx *gin.Context) {
 
 	var (
-		rules = govalidator.MapData{
-			"content": []string{"required"},
-		}
-		opts = govalidator.Options{
-			Request:         ctx.Request,
-			Rules:           rules,
-			RequiredDefault: true,
+		request = &requests.CreateMessageRequest{
+			Content: ctx.PostForm("content"),
 		}
 		receiverId = ctx.Param("receiver_id")
-		token      = ctx.Request.Header.Get("Authorization")
+		token      = ctx.GetHeader("Authorization")
 	)
 
-	if validate := govalidator.New(opts).Validate(); validate.Encode() != "" {
-		validations := components.GetValidationErrorsFromGoValidator(validate)
-		ctx.JSON(respond.Default.ValidationErrors(validations))
+	if errors := validators.NewValidator(request); len(errors) != 0 {
+		ctx.JSON(respond.Default.ValidationErrors(errors))
 		return
 	}
 
@@ -48,13 +43,6 @@ func Create(ctx *gin.Context) {
 			ctx.JSON(code, result)
 			return
 		}
-	}
-
-	if response.Code != http.StatusOK {
-		ctx.JSON(respond.Default.SetStatusText("failed").
-			SetStatusCode(500).
-			RespondWithMessage("Could not send the message!"))
-		return
 	}
 
 	ctx.JSON(respond.Default.SetStatusText("success").
