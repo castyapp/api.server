@@ -2,32 +2,34 @@ package user
 
 import (
 	"context"
-	"github.com/CastyLab/api.server/app/components"
-	"github.com/CastyLab/api.server/grpc"
-	"github.com/CastyLab/grpc.proto/proto"
-	"github.com/MrJoshLab/go-respond"
-	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 	"time"
+
+	"github.com/castyapp/libcasty-protocol-go/proto"
+	"github.com/MrJoshLab/go-respond"
+	"github.com/castyapp/api.server/app/components"
+	"github.com/castyapp/api.server/grpc"
+	"github.com/gin-gonic/gin"
 )
 
-func UpdateConnection(ctx *gin.Context)  {
+func UpdateConnection(ctx *gin.Context) {
 
 	var (
-		connections = make([]*proto.Connection, 0)
-		token = ctx.Request.Header.Get("Authorization")
-		mCtx, cancel = context.WithTimeout(ctx, 20 * time.Second)
+		connections  = make([]*proto.Connection, 0)
+		token        = ctx.GetHeader("Authorization")
+		mCtx, cancel = context.WithTimeout(ctx, 20*time.Second)
 	)
 
 	defer cancel()
 
 	var service proto.Connection_Type
 	switch serviceName := ctx.Param("service"); serviceName {
-	case "google":  service = proto.Connection_GOOGLE
-	case "discord": service = proto.Connection_DISCORD
-	case "spotify": service = proto.Connection_SPOTIFY
-	default: service = proto.Connection_UNKNOWN
+	case "google":
+		service = proto.Connection_GOOGLE
+	case "spotify":
+		service = proto.Connection_SPOTIFY
+	default:
+		service = proto.Connection_UNKNOWN
 		ctx.JSON(respond.Default.SetStatusCode(http.StatusBadRequest).
 			SetStatusText("Failed!").
 			RespondWithMessage("Invalid connection type!"))
@@ -44,7 +46,6 @@ func UpdateConnection(ctx *gin.Context)  {
 	})
 
 	if err != nil {
-		log.Println(err)
 		if code, result, ok := components.ParseGrpcErrorResponse(err); !ok {
 			ctx.JSON(code, result)
 			return
@@ -67,22 +68,24 @@ func UpdateConnection(ctx *gin.Context)  {
 
 }
 
-func GetConnection(ctx *gin.Context)  {
+func GetConnection(ctx *gin.Context) {
 
 	var (
-		connections = make([]*proto.Connection, 0)
-		token = ctx.Request.Header.Get("Authorization")
-		mCtx, cancel = context.WithTimeout(ctx, 20 * time.Second)
+		connections  = make([]*proto.Connection, 0)
+		token        = ctx.GetHeader("Authorization")
+		mCtx, cancel = context.WithTimeout(ctx, 20*time.Second)
 	)
 
 	defer cancel()
 
 	var service proto.Connection_Type
 	switch serviceName := ctx.Param("service"); serviceName {
-	case "google":  service = proto.Connection_GOOGLE
-	case "discord": service = proto.Connection_DISCORD
-	case "spotify": service = proto.Connection_SPOTIFY
-	default: service = proto.Connection_UNKNOWN
+	case "google":
+		service = proto.Connection_GOOGLE
+	case "spotify":
+		service = proto.Connection_SPOTIFY
+	default:
+		service = proto.Connection_UNKNOWN
 		ctx.JSON(respond.Default.SetStatusCode(http.StatusBadRequest).
 			SetStatusText("Failed!").
 			RespondWithMessage("Invalid connection type!"))
@@ -121,14 +124,13 @@ func GetConnection(ctx *gin.Context)  {
 
 }
 
-func GetConnections(ctx *gin.Context)  {
+func GetConnections(ctx *gin.Context) {
 
 	var (
-		connections = make([]*proto.Connection, 0)
-		token = ctx.Request.Header.Get("Authorization")
-		mCtx, cancel = context.WithTimeout(ctx, 20 * time.Second)
+		connections  = make([]*proto.Connection, 0)
+		token        = ctx.GetHeader("Authorization")
+		mCtx, cancel = context.WithTimeout(ctx, 20*time.Second)
 	)
-
 	defer cancel()
 
 	response, err := grpc.UserServiceClient.GetConnections(mCtx, &proto.AuthenticateRequest{

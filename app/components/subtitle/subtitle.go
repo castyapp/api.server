@@ -6,8 +6,8 @@ import (
 	"io/ioutil"
 	"mime/multipart"
 
-	"github.com/CastyLab/api.server/app/components/strings"
-	"github.com/CastyLab/api.server/storage"
+	"github.com/castyapp/api.server/app/components/strings"
+	"github.com/castyapp/api.server/storage"
 	"github.com/asticode/go-astisub"
 	"github.com/minio/minio-go"
 )

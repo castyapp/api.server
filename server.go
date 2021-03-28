@@ -6,15 +6,14 @@ import (
 	"log"
 	"time"
 
-	"github.com/CastyLab/api.server/app"
-	"github.com/CastyLab/api.server/app/http/v1/middlewares"
-	"github.com/CastyLab/api.server/app/http/v1/validators"
-	"github.com/CastyLab/api.server/config"
-	"github.com/CastyLab/api.server/grpc"
-	"github.com/CastyLab/api.server/storage"
+	"github.com/castyapp/api.server/app"
+	"github.com/castyapp/api.server/app/http/v1/middlewares"
+	"github.com/castyapp/api.server/app/http/v1/validators"
+	"github.com/castyapp/api.server/config"
+	"github.com/castyapp/api.server/grpc"
+	"github.com/castyapp/api.server/storage"
 	"github.com/getsentry/sentry-go"
 	"github.com/gin-gonic/gin"
-	"github.com/thedevsaddam/govalidator"
 )
 
 var (
@@ -27,13 +26,17 @@ func init() {
 
 	port = flag.Int("port", 9002, "api server port")
 	host = flag.String("host", "0.0.0.0", "api server host")
-	configFileName := flag.String("config-file", "config.yml", "config.yaml file")
+	configFileName := flag.String("config-file", "config.hcl", "config.hcl file")
 
 	flag.Parse()
 	log.Printf("Loading ConfigMap from file: [%s]", *configFileName)
 
 	if err := config.Load(*configFileName); err != nil {
 		log.Fatal(fmt.Errorf("could not load config: %v", err))
+	}
+
+	if err := validators.Configure(); err != nil {
+		log.Fatal(fmt.Errorf("could not configure validators: %v", err))
 	}
 
 	if err := grpc.Configure(); err != nil {
@@ -44,9 +47,12 @@ func init() {
 		log.Fatal(fmt.Errorf("could not configure s3 bucket storage client: %v", err))
 	}
 
-	if err := sentry.Init(sentry.ClientOptions{Dsn: config.Map.Secrets.SentryDsn}); err != nil {
-		log.Fatal(fmt.Errorf("could not initilize sentry: %v", err))
+	if config.Map.Sentry.Enabled {
+		if err := sentry.Init(sentry.ClientOptions{Dsn: config.Map.Sentry.Dsn}); err != nil {
+			log.Fatal(fmt.Errorf("could not initilize sentry: %v", err))
+		}
 	}
+
 }
 
 func main() {
@@ -56,16 +62,12 @@ func main() {
 	defer sentry.Flush(5 * time.Second)
 
 	gin.SetMode(gin.ReleaseMode)
-	if config.Map.App.Env == "dev" || config.Map.App.Debug {
+	if config.Map.Env == "dev" || config.Map.Debug {
 		gin.SetMode(gin.DebugMode)
 	}
 
 	router := gin.New()
 	router.Use(middlewares.CORSMiddleware)
-
-	// register unique validator
-	govalidator.AddCustomRule("access", validators.Access)
-	govalidator.AddCustomRule("media_source_uri", validators.MediaSourceUri)
 
 	app.RegisterRoutes(router)
 

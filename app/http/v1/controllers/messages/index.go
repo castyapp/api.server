@@ -1,18 +1,18 @@
 package messages
 
 import (
-	"github.com/CastyLab/api.server/app/components"
-	"github.com/CastyLab/api.server/grpc"
-	"github.com/CastyLab/grpc.proto/proto"
+	"github.com/castyapp/libcasty-protocol-go/proto"
 	"github.com/MrJoshLab/go-respond"
+	"github.com/castyapp/api.server/app/components"
+	"github.com/castyapp/api.server/grpc"
 	"github.com/gin-gonic/gin"
 )
 
-func Messages(ctx *gin.Context)  {
+func Messages(ctx *gin.Context) {
 
 	var (
 		receiverId = ctx.Param("receiver_id")
-		token      = ctx.Request.Header.Get("Authorization")
+		token      = ctx.GetHeader("Authorization")
 	)
 
 	response, err := grpc.MessagesServiceClient.GetUserMessages(ctx, &proto.GetMessagesRequest{
