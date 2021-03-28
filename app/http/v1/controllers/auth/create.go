@@ -1,10 +1,10 @@
 package auth
 
 import (
-	"github.com/CastyLab/api.server/app/components"
-	"github.com/CastyLab/api.server/app/components/recaptcha"
-	"github.com/CastyLab/api.server/config"
-	"github.com/CastyLab/api.server/grpc"
+	"github.com/castyapp/api.server/app/components"
+	"github.com/castyapp/api.server/app/components/recaptcha"
+	"github.com/castyapp/api.server/config"
+	"github.com/castyapp/api.server/grpc"
 	"github.com/CastyLab/grpc.proto/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/getsentry/sentry-go"
@@ -31,11 +31,11 @@ func Create(ctx *gin.Context) {
 
 	if validate.Encode() == "" {
 
-		if config.Map.App.Env == "prod" {
+		if config.Map.Recaptcha.Enabled {
 			if _, err := recaptcha.Verify(ctx); err != nil {
 				sentry.CaptureException(err)
-				ctx.JSON(respond.Default.ValidationErrors(map[string] interface{} {
-					"recaptcha": []string {
+				ctx.JSON(respond.Default.ValidationErrors(map[string]interface{}{
+					"recaptcha": []string{
 						"Captcha is invalid!",
 					},
 				}))
@@ -57,10 +57,10 @@ func Create(ctx *gin.Context) {
 			}
 		}
 
-		ctx.JSON(respond.Default.Succeed(map[string] interface{} {
-			"token": string(response.Token),
+		ctx.JSON(respond.Default.Succeed(map[string]interface{}{
+			"token":           string(response.Token),
 			"refreshed_token": string(response.RefreshedToken),
-			"type": "bearer",
+			"type":            "bearer",
 		}))
 		return
 	}

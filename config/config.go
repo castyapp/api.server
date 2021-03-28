@@ -1,11 +1,9 @@
 package config
 
 import (
-	"fmt"
-	"log"
-	"os"
+	"io/ioutil"
 
-	"gopkg.in/yaml.v2"
+	"github.com/hashicorp/hcl"
 )
 
 var validBuckets = []string{
@@ -14,45 +12,66 @@ var validBuckets = []string{
 	"posters",
 }
 
-type ConfMap struct {
-	App struct {
-		Version string `yaml:"version"`
-		Debug   bool   `yaml:"debug"`
-		Env     string `yaml:"env"`
-	} `yaml:"app"`
-	Grpc struct {
-		Host string `yaml:"host"`
-		Port int    `yaml:"port"`
-	} `yaml:"grpc"`
-	Http struct {
-		AccessControlAllowOrigin string `yaml:"access_control_allow_origin"`
-	} `yaml:"http"`
-	Secrets struct {
-		ObjectStorage struct {
-			Endpoint           string `yaml:"endpoint"`
-			Region             string `yaml:"region"`
-			UseHttps           bool   `yaml:"use_https"`
-			InsecureSkipVerify bool   `yaml:"insecure_skip_verify"`
-			AccessKey          string `yaml:"access_key"`
-			SecretKey          string `yaml:"secret_key"`
-		} `yaml:"object_storage"`
-		SentryDsn      string `yaml:"sentry_dsn"`
-		HcaptchaSecret string `yaml:"hcaptcha_secret"`
-	} `yaml:"secrets"`
+type ConfigMap struct {
+	Debug     bool            `hcl:"debug"`
+	Env       string          `hcl:"env"`
+	Metrics   bool            `hcl:"metrics"`
+	Timezone  string          `hcl:"timezone"`
+	Grpc      GrpcConfig      `hcl:"grpc,block"`
+	Http      HttpConfig      `hcl:"http,block"`
+	S3        S3Config        `hcl:"s3,block"`
+	Sentry    SentryConfig    `hcl:"sentry,block"`
+	Recaptcha RecaptchaConfig `hcl:"recaptcha,block"`
 }
 
-var Map = new(ConfMap)
+type HttpConfig struct {
+	Rules HttpConfigRules `hcl:"rules,label"`
+}
 
-func Load(filename string) error {
-	file, err := os.Open(filename)
+type HttpConfigRules struct {
+	AccessControlAllowOrigin string `hcl:"access_control_allow_origin"`
+}
+
+type GrpcConfig struct {
+	Host string `hcl:"host"`
+	Port int    `hcl:"port"`
+}
+
+type S3Config struct {
+	Endpoint           string `hcl:"endpoint"`
+	AccessKey          string `hcl:"access_key"`
+	SecretKey          string `hcl:"secret_key"`
+	UseHttps           bool   `hcl:"use_https"`
+	InsecureSkipVerify bool   `hcl:"insecure_skip_verify"`
+}
+
+type SentryConfig struct {
+	Enabled bool   `hcl:"enabled"`
+	Dsn     string `hcl:"dsn"`
+}
+
+type RecaptchaConfig struct {
+	Enabled bool   `hcl:"enabled"`
+	Type    string `hcl:"type"`
+	Secret  string `hcl:"secret"`
+}
+
+var Map = new(ConfigMap)
+
+func Load(filename string) (err error) {
+	d, err := ioutil.ReadFile(filename)
 	if err != nil {
-		return fmt.Errorf("could not open config file: %v", err)
+		return err
 	}
-	if err := yaml.NewDecoder(file).Decode(&Map); err != nil {
-		return fmt.Errorf("could not decode config file: %v", err)
+	obj, err := hcl.Parse(string(d))
+	if err != nil {
+		return err
 	}
-	log.Printf("ConfigMap Loaded: [version: %s]", Map.App.Version)
-	return nil
+	// Build up the result
+	if err := hcl.DecodeObject(&Map, obj); err != nil {
+		return err
+	}
+	return
 }
 
 func IsValidBucketName(bucketname string) bool {

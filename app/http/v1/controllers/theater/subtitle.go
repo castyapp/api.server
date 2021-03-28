@@ -2,26 +2,28 @@ package theater
 
 import (
 	"context"
-	"github.com/CastyLab/api.server/app/components"
-	"github.com/CastyLab/api.server/app/components/subtitle"
-	"github.com/CastyLab/api.server/grpc"
+	"log"
+	"net/http"
+	"time"
+
+	"github.com/castyapp/api.server/app/components"
+	"github.com/castyapp/api.server/app/components/subtitle"
+	"github.com/castyapp/api.server/grpc"
 	"github.com/CastyLab/grpc.proto/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/getsentry/sentry-go"
 	"github.com/gin-gonic/gin"
 	"github.com/thedevsaddam/govalidator"
-	"log"
-	"net/http"
-	"time"
 )
 
 // Get theater subtitles from grpc.theater service
 func Subtitles(ctx *gin.Context) {
 
 	var (
-		subtitles  = make([]*proto.Subtitle, 0)
-		mCtx, _    = context.WithTimeout(ctx, 10 * time.Second)
+		subtitles        = make([]*proto.Subtitle, 0)
+		mCtx, cancelFunc = context.WithTimeout(ctx, 10*time.Second)
 	)
+	defer cancelFunc()
 
 	req := &proto.MediaSourceAuthRequest{
 		Media: &proto.MediaSource{
@@ -57,17 +59,18 @@ func AddSubtitle(ctx *gin.Context) {
 
 	var (
 		rules = govalidator.MapData{
-			"lang":           []string{"required", "min:4", "max:30"},
-			"file:subtitle":  []string{"required", "ext:srt", "size:20000000"},
+			"lang":          []string{"required", "min:4", "max:30"},
+			"file:subtitle": []string{"required", "ext:srt", "size:20000000"},
 		}
 		opts = govalidator.Options{
 			Request:         ctx.Request,
 			Rules:           rules,
 			RequiredDefault: true,
 		}
-		token      = ctx.Request.Header.Get("Authorization")
-		mCtx, _    = context.WithTimeout(ctx, 10 * time.Second)
+		token            = ctx.Request.Header.Get("Authorization")
+		mCtx, cancelFunc = context.WithTimeout(ctx, 10*time.Second)
 	)
+	defer cancelFunc()
 
 	if validate := govalidator.New(opts).Validate(); validate.Encode() != "" {
 		validations := components.GetValidationErrorsFromGoValidator(validate)
@@ -129,12 +132,13 @@ func AddSubtitle(ctx *gin.Context) {
 func RemoveSubtitle(ctx *gin.Context) {
 
 	var (
-		token      = ctx.Request.Header.Get("Authorization")
-		mCtx, _    = context.WithTimeout(ctx, 10 * time.Second)
+		token            = ctx.Request.Header.Get("Authorization")
+		mCtx, cancelFunc = context.WithTimeout(ctx, 10*time.Second)
 	)
+	defer cancelFunc()
 
 	response, err := grpc.TheaterServiceClient.RemoveSubtitle(mCtx, &proto.RemoveSubtitleRequest{
-		SubtitleId: ctx.Param("subtitle_id"),
+		SubtitleId:    ctx.Param("subtitle_id"),
 		MediaSourceId: ctx.Param("id"),
 		AuthRequest: &proto.AuthenticateRequest{
 			Token: []byte(token),

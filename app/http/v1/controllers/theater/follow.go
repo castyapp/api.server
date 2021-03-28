@@ -2,13 +2,14 @@ package theater
 
 import (
 	"context"
-	"github.com/CastyLab/api.server/app/components"
-	"github.com/CastyLab/api.server/grpc"
+	"net/http"
+	"time"
+
+	"github.com/castyapp/api.server/app/components"
+	"github.com/castyapp/api.server/grpc"
 	"github.com/CastyLab/grpc.proto/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"time"
 )
 
 func GetFollowedTheaters(ctx *gin.Context) {
@@ -16,7 +17,7 @@ func GetFollowedTheaters(ctx *gin.Context) {
 	var (
 		theaters     = make([]*proto.Theater, 0)
 		token        = ctx.Request.Header.Get("Authorization")
-		mCtx, cancel = context.WithTimeout(ctx, 10 * time.Second)
+		mCtx, cancel = context.WithTimeout(ctx, 10*time.Second)
 	)
 
 	defer cancel()
@@ -43,8 +44,8 @@ func GetFollowedTheaters(ctx *gin.Context) {
 func Follow(ctx *gin.Context) {
 
 	var (
-		token   = ctx.Request.Header.Get("Authorization")
-		mCtx, cancel = context.WithTimeout(ctx, 10 * time.Second)
+		token        = ctx.Request.Header.Get("Authorization")
+		mCtx, cancel = context.WithTimeout(ctx, 10*time.Second)
 	)
 
 	defer cancel()
@@ -78,11 +79,11 @@ func Follow(ctx *gin.Context) {
 	return
 }
 
-func Unfollow(ctx *gin.Context)  {
+func Unfollow(ctx *gin.Context) {
 
 	var (
-		token   = ctx.Request.Header.Get("Authorization")
-		mCtx, cancel = context.WithTimeout(ctx, 10 * time.Second)
+		token        = ctx.Request.Header.Get("Authorization")
+		mCtx, cancel = context.WithTimeout(ctx, 10*time.Second)
 	)
 
 	defer cancel()

@@ -1,8 +1,8 @@
 package user
 
 import (
-	"github.com/CastyLab/api.server/app/components"
-	"github.com/CastyLab/api.server/grpc"
+	"github.com/castyapp/api.server/app/components"
+	"github.com/castyapp/api.server/grpc"
 	"github.com/CastyLab/grpc.proto/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
@@ -13,8 +13,8 @@ func Search(ctx *gin.Context) {
 
 	var (
 		keyword = ctx.Query("keyword")
-		rules = govalidator.MapData{
-			"keyword":    []string{"required", "min:3", "max:20"},
+		rules   = govalidator.MapData{
+			"keyword": []string{"required", "min:3", "max:20"},
 		}
 		opts = govalidator.Options{
 			Request:         ctx.Request,
@@ -45,7 +45,7 @@ func Search(ctx *gin.Context) {
 	}
 
 	if response.Result == nil {
-		ctx.JSON(respond.Default.Succeed([]interface{} {}))
+		ctx.JSON(respond.Default.Succeed([]interface{}{}))
 		return
 	}
 

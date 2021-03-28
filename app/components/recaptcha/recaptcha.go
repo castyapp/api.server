@@ -3,11 +3,12 @@ package recaptcha
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/CastyLab/api.server/config"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/castyapp/api.server/config"
+	"github.com/gin-gonic/gin"
 )
 
 const (
@@ -15,11 +16,11 @@ const (
 )
 
 type SiteVerificationResponse struct {
-	Success     bool      `json:"success"`
-	ErrorCodes  []string  `json:"error-codes"`
-	ChallengeTs string    `json:"challenge_ts"`
-	Hostname    string    `json:"hostname"`
-	Credit      bool      `json:"credit"`
+	Success     bool     `json:"success"`
+	ErrorCodes  []string `json:"error-codes"`
+	ChallengeTs string   `json:"challenge_ts"`
+	Hostname    string   `json:"hostname"`
+	Credit      bool     `json:"credit"`
 }
 
 func Verify(ctx *gin.Context) (*SiteVerificationResponse, error) {
@@ -30,7 +31,7 @@ func Verify(ctx *gin.Context) (*SiteVerificationResponse, error) {
 		token  = ctx.GetHeader("h-captcha-response")
 	)
 
-	params.Set("secret", config.Map.Secrets.HcaptchaSecret)
+	params.Set("secret", config.Map.Recaptcha.Secret)
 	params.Set("response", token)
 	body := strings.NewReader(params.Encode())
 

@@ -2,10 +2,6 @@ package models
 
 import (
 	"errors"
-	"github.com/CastyLab/api.server/app/components/spotify"
-	rnd "github.com/CastyLab/api.server/app/components/strings"
-	"github.com/CastyLab/grpc.proto/proto"
-	"github.com/knadh/go-get-youtube/youtube"
 	"net/http"
 	"net/url"
 	"os/exec"
@@ -13,20 +9,25 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/castyapp/api.server/app/components/spotify"
+	rnd "github.com/castyapp/api.server/app/components/strings"
+	"github.com/CastyLab/grpc.proto/proto"
+	"github.com/knadh/go-get-youtube/youtube"
 )
 
 type MediaFile struct {
-	Id      string         `json:"id"`
-	Title   string         `json:"title"`
-	Length  time.Duration  `json:"length"`
-	Size    int            `json:"size"`
+	Id     string        `json:"id"`
+	Title  string        `json:"title"`
+	Length time.Duration `json:"length"`
+	Size   int           `json:"size"`
 }
 
 type MediaSource struct {
 	u           string
 	trackType   string
 	accessToken string
-	proto *proto.MediaSource
+	proto       *proto.MediaSource
 }
 
 func (m *MediaSource) Proto() *proto.MediaSource {
@@ -153,9 +154,14 @@ func (m *MediaSource) Parse() error {
 	case "spotify", "open.spotify.com":
 		parsed := strings.Split(u.Path, "/")
 		switch strings.TrimSpace(parsed[1]) {
-		case "track": m.trackType = "track"; break
-		case "episode": m.trackType = "episode"; break
-		default: return errors.New("could not parse spotify")
+		case "track":
+			m.trackType = "track"
+			break
+		case "episode":
+			m.trackType = "episode"
+			break
+		default:
+			return errors.New("could not parse spotify")
 		}
 		return m.parseSpotify(strings.TrimSpace(parsed[2]))
 	default:

@@ -2,17 +2,18 @@ package middlewares
 
 import (
 	"context"
-	"github.com/CastyLab/api.server/app/components"
-	"github.com/CastyLab/api.server/grpc"
-	"github.com/CastyLab/grpc.proto/proto"
-	"github.com/MrJoshLab/go-respond"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/castyapp/api.server/app/components"
+	"github.com/castyapp/api.server/grpc"
+	"github.com/CastyLab/grpc.proto/proto"
+	"github.com/MrJoshLab/go-respond"
+	"github.com/gin-gonic/gin"
 )
 
-func Authentication(ctx *gin.Context)  {
+func Authentication(ctx *gin.Context) {
 
 	token := strings.ReplaceAll(ctx.GetHeader("Authorization"), "Bearer ", "")
 	if token == "" {
@@ -22,7 +23,7 @@ func Authentication(ctx *gin.Context)  {
 		return
 	}
 
-	mCtx, cancel := context.WithTimeout(ctx, 20 * time.Second)
+	mCtx, cancel := context.WithTimeout(ctx, 20*time.Second)
 	defer cancel()
 
 	response, err := grpc.UserServiceClient.GetUser(mCtx, &proto.AuthenticateRequest{

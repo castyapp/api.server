@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/CastyLab/api.server/app/components"
-	"github.com/CastyLab/api.server/app/components/recaptcha"
-	"github.com/CastyLab/api.server/config"
-	"github.com/CastyLab/api.server/grpc"
+	"github.com/castyapp/api.server/app/components"
+	"github.com/castyapp/api.server/app/components/recaptcha"
+	"github.com/castyapp/api.server/config"
+	"github.com/castyapp/api.server/grpc"
 	"github.com/CastyLab/grpc.proto/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
@@ -51,7 +51,7 @@ func Create(ctx *gin.Context) {
 		return
 	}
 
-	if config.Map.App.Env == "prod" {
+	if config.Map.Recaptcha.Enabled {
 		if _, err := recaptcha.Verify(ctx); err != nil {
 			ctx.JSON(respond.Default.ValidationErrors(map[string]interface{}{
 				"recaptcha": []string{

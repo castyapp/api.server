@@ -9,43 +9,68 @@ You can find API Documentations on Postman
 
 ## Run Docker Container
 ```bash
-$ docker run -p 9002:9002 castylab/api:1.3.7-alpine
+$ docker run -p 9002:9002 castyapp/api:latest
 ```
 
 ## Requirements
-* Golang `(1.14)` Always be up to date!) [Install Golang!](https://golang.org/doc/install)
-* gRPC.server **This project needs to connect to Casty gRPC server!**  [More info](https://github.com/CastyLab/grpc.server)
+* Golang `(1.15)` Always be up to date!) [Install Golang!](https://golang.org/doc/install)
+* gRPC.server **This project needs to connect to Casty gRPC server!**  [More info](https://github.com/castyapp/grpc.server)
 
 ## Clone the project
 ```bash
-$ git clone https://github.com/CastyLab/api.server.git
+$ git clone https://github.com/castyapp/api.server.git
 ```
 
 ## Configuraition
-There is a `config.example.yml` file that you should make a copy of, and call it `config.yml` in your work directory.
-
+There is a `example.config.hcl` file that you should make a copy of, and call it `config.hcl` in your work directory.
 ```bash
-$ cp config.example.yml config.yml
+$ cp example.config.hcl config.hcl
 ```
 
-The most important environments here are `grpc.host`, `grpc.port` and `secrets.hcaptcha_secret`
-```yaml
-grpc:
-  host: "localhost"
-  port: 55283
+### Configure grpc client
+You can find more information about how to run grpc server 
+is available here [https://github.com/castyapp/grpc.server#readme]
+```hcl
+grpc {
+  host = "localhost"
+  port = 55283
+}
 ```
 
-`grpc.host` and `grpc.port` are the gRPC.server ip address and port that you should have! [Casty gRPC.server](https://github.com/CastyLab/grpc.server)
+### S3 bucket setup
+You can configure the s3 bucket with these configurations
+This works with minio too
+```hcl
+s3 {
+  endpoint             = "127.0.0.1:9000"
+  access_key           = "secret-access-key"
+  secret_key           = "secret-key"
+  use_https            = true
+  insecure_skip_verify = true
+}
+```
 
-`secrets.hcaptcha_secret` is hcaptcha secret key that you should set up on google admin console!
+### Recaptcha setup
+
+`recaptcha.secret` is a secret key that you get on hcaptcha admin console!
+for more information about hcaptcha [click here](https://www.hcaptcha.com/)
+
+`recaptcha.type` is only available for hcaptcha, google will add soon!
+
+```hcl
+recaptcha {
+  enabled = false
+  type    = "hcaptcha"
+  secret  = "hcaptcha-secret-token"
+}
+```
 
 for more information about hcaptcha [click here](https://www.hcaptcha.com/)
 
 You're ready to Go!
 
 ## Run project with go compiler
-you can simply run the project with following command
-* this project uses go mod file, You can run this project out of the $GOPAH file!
+You can simply run the project with following command
 ```bash
 $ go run server.go
 ```

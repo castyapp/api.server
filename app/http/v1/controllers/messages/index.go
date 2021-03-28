@@ -1,14 +1,14 @@
 package messages
 
 import (
-	"github.com/CastyLab/api.server/app/components"
-	"github.com/CastyLab/api.server/grpc"
+	"github.com/castyapp/api.server/app/components"
+	"github.com/castyapp/api.server/grpc"
 	"github.com/CastyLab/grpc.proto/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
 )
 
-func Messages(ctx *gin.Context)  {
+func Messages(ctx *gin.Context) {
 
 	var (
 		receiverId = ctx.Param("receiver_id")

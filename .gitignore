@@ -2,6 +2,5 @@
 /.idea
 /database/*.db
 */**/.DS_Store
-config.yml
+config.hcl
 server
-docker.config.yml

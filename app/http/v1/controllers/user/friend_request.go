@@ -2,23 +2,25 @@ package user
 
 import (
 	"context"
-	"github.com/CastyLab/api.server/app/components"
-	"github.com/CastyLab/api.server/grpc"
+	"net/http"
+	"time"
+
+	"github.com/castyapp/api.server/app/components"
+	"github.com/castyapp/api.server/grpc"
 	"github.com/CastyLab/grpc.proto/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
 	"github.com/thedevsaddam/govalidator"
-	"net/http"
-	"time"
 )
 
 func SendFriendRequest(ctx *gin.Context) {
 
 	var (
-		friendId = ctx.Param("friend_id")
-		mCtx, _  = context.WithTimeout(ctx, 20 * time.Second)
-		token    = ctx.Request.Header.Get("Authorization")
+		friendId     = ctx.Param("friend_id")
+		mCtx, cancel = context.WithTimeout(ctx, 20*time.Second)
+		token        = ctx.Request.Header.Get("Authorization")
 	)
+	defer cancel()
 
 	response, err := grpc.UserServiceClient.SendFriendRequest(mCtx, &proto.FriendRequest{
 		FriendId: friendId,
@@ -44,8 +46,8 @@ func SendFriendRequest(ctx *gin.Context) {
 		ctx.JSON(respond.Default.InsertSucceeded())
 		return
 	default:
-		ctx.JSON(respond.Default.ValidationErrors(map[string] interface{} {
-			"friend_id": []string {
+		ctx.JSON(respond.Default.ValidationErrors(map[string]interface{}{
+			"friend_id": []string{
 				"Could not sent a friend request to this user!",
 			},
 		}))
@@ -73,7 +75,7 @@ func AcceptFriendRequest(ctx *gin.Context) {
 		return
 	}
 
-	mCtx, cancel := context.WithTimeout(ctx, 20 * time.Second)
+	mCtx, cancel := context.WithTimeout(ctx, 20*time.Second)
 	defer cancel()
 
 	response, err := grpc.UserServiceClient.AcceptFriendRequest(mCtx, &proto.FriendRequest{
@@ -97,8 +99,8 @@ func AcceptFriendRequest(ctx *gin.Context) {
 			RespondWithMessage("Friend request accepted successfully!"))
 		return
 	default:
-		ctx.JSON(respond.Default.ValidationErrors(map[string] interface{} {
-			"friend_id": []string {
+		ctx.JSON(respond.Default.ValidationErrors(map[string]interface{}{
+			"friend_id": []string{
 				"Could not accept friend request, Pleae try again later!",
 			},
 		}))
