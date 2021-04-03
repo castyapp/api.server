@@ -15,8 +15,6 @@ var validBuckets = []string{
 type ConfigMap struct {
 	Debug     bool            `hcl:"debug"`
 	Env       string          `hcl:"env"`
-	Metrics   bool            `hcl:"metrics"`
-	Timezone  string          `hcl:"timezone"`
 	Grpc      GrpcConfig      `hcl:"grpc,block"`
 	Http      HttpConfig      `hcl:"http,block"`
 	S3        S3Config        `hcl:"s3,block"`

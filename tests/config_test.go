@@ -11,10 +11,8 @@ import (
 var (
 	configFileName = "./config_test.hcl"
 	defaultConfig  = &config.ConfigMap{
-		Debug:    false,
-		Metrics:  false,
-		Env:      "dev",
-		Timezone: "America/California",
+		Debug: false,
+		Env:   "dev",
 		S3: config.S3Config{
 			Endpoint:           "127.0.0.1:9000",
 			AccessKey:          "secret-access-key",
