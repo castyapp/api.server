@@ -1,14 +1,8 @@
 # Debug mode
 debug = false
 
-# Metrics api enabled?
-matrics = false
-
 # Application environment
 env = "dev"
-
-# setup timezone
-timezone = "America/California"
 
 # Configure grpc client
 #

@@ -1,6 +1,9 @@
+/bin
 /.DS_Store
 /.idea
 /database/*.db
 */**/.DS_Store
-config.hcl
 server
+*.config.hcl
+config.hcl
+!/example.config.hcl

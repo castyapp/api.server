@@ -7,7 +7,7 @@ import (
 
 func CORSMiddleware(c *gin.Context) {
 
-	c.Writer.Header().Set("Access-Control-Allow-Origin", config.Map.Http.Rules.AccessControlAllowOrigin)
+	c.Writer.Header().Set("Access-Control-Allow-Origin", config.Map.HTTP.Rules.AccessControlAllowOrigin)
 	c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 
 	c.Writer.Header().Set(

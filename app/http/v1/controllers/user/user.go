@@ -16,5 +16,4 @@ func GetMe(c *gin.Context) {
 	c.JSON(respond.Default.SetStatusText("Failed!").
 		SetStatusCode(500).
 		RespondWithMessage("User does not exists in context!"))
-	return
 }

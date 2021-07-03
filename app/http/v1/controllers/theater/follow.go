@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/castyapp/libcasty-protocol-go/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/castyapp/api.server/app/components"
 	"github.com/castyapp/api.server/grpc"
+	"github.com/castyapp/libcasty-protocol-go/proto"
 	"github.com/gin-gonic/gin"
 )
 
@@ -38,7 +38,6 @@ func GetFollowedTheaters(ctx *gin.Context) {
 	}
 
 	ctx.JSON(respond.Default.Succeed(theaters))
-	return
 }
 
 func Follow(ctx *gin.Context) {
@@ -76,7 +75,6 @@ func Follow(ctx *gin.Context) {
 	ctx.JSON(respond.Default.SetStatusCode(http.StatusOK).
 		SetStatusText("Success").
 		RespondWithMessage("Could not follow. please try again later!"))
-	return
 }
 
 func Unfollow(ctx *gin.Context) {
@@ -114,5 +112,4 @@ func Unfollow(ctx *gin.Context) {
 	ctx.JSON(respond.Default.SetStatusCode(http.StatusOK).
 		SetStatusText("Success").
 		RespondWithMessage("Could not unfollow. please try again later!"))
-	return
 }

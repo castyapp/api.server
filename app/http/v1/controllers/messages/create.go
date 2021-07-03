@@ -3,12 +3,12 @@ package messages
 import (
 	"net/http"
 
-	"github.com/castyapp/libcasty-protocol-go/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/castyapp/api.server/app/components"
 	"github.com/castyapp/api.server/app/http/v1/requests"
 	"github.com/castyapp/api.server/app/http/v1/validators"
 	"github.com/castyapp/api.server/grpc"
+	"github.com/castyapp/libcasty-protocol-go/proto"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,7 +18,7 @@ func Create(ctx *gin.Context) {
 		request = &requests.CreateMessageRequest{
 			Content: ctx.PostForm("content"),
 		}
-		receiverId = ctx.Param("receiver_id")
+		receiverID = ctx.Param("receiver_id")
 		token      = ctx.GetHeader("Authorization")
 	)
 
@@ -32,7 +32,7 @@ func Create(ctx *gin.Context) {
 			Token: []byte(token),
 		},
 		Message: &proto.Message{
-			Reciever: &proto.User{Id: receiverId},
+			Receiver: &proto.User{Id: receiverID},
 			Content:  ctx.PostForm("content"),
 		},
 	})
@@ -48,5 +48,4 @@ func Create(ctx *gin.Context) {
 	ctx.JSON(respond.Default.SetStatusText("success").
 		SetStatusCode(http.StatusOK).
 		RespondWithResult(response.Result))
-	return
 }

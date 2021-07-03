@@ -7,14 +7,28 @@ This is a backend API server of Casty project written in go!
 
 You can find API Documentations on Postman
 
+## Requirements
+* Golang `(1.15)` [Install Golang!](https://golang.org/doc/install)
+* gRPC.server **This project needs to connect to Casty gRPC server!**  [More info](https://github.com/castyapp/grpc.server)
+
 ## Run Docker Container
 ```bash
 $ docker run -p 9002:9002 castyapp/api:latest
 ```
 
-## Requirements
-* Golang `(1.15)` Always be up to date!) [Install Golang!](https://golang.org/doc/install)
-* gRPC.server **This project needs to connect to Casty gRPC server!**  [More info](https://github.com/castyapp/grpc.server)
+## docker-compose example
+```yaml
+version: '3'
+
+services:
+  api:
+    image: castyapp/api:latest
+    ports:
+      - 9002:9002
+    args: ['--config-file', '/config/config.hcl']
+    volumes:
+      - $PWD/config.hcl:/config/config.hcl
+```
 
 ## Clone the project
 ```bash
@@ -73,7 +87,7 @@ You can simply run the project with following command
 $ go run server.go
 ```
 
-or if you're considering building the project use
+or if you're considering building the project
 ```bash
 $ go build -o server .
 ```
@@ -87,3 +101,6 @@ $ docker run -dp --restart=always 9002:9002 casty.api
 
 ## Contributing
 Thank you for considering contributing to this project!
+
+## License
+Casty is an open-source software licensed under the MIT license.

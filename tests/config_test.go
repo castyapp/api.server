@@ -10,20 +10,18 @@ import (
 
 var (
 	configFileName = "./config_test.hcl"
-	defaultConfig  = &config.ConfigMap{
-		Debug:    false,
-		Metrics:  false,
-		Env:      "dev",
-		Timezone: "America/California",
+	defaultConfig  = &config.ConfMap{
+		Debug: false,
+		Env:   "dev",
 		S3: config.S3Config{
 			Endpoint:           "127.0.0.1:9000",
 			AccessKey:          "secret-access-key",
 			SecretKey:          "secret-key",
 			InsecureSkipVerify: true,
-			UseHttps:           false,
+			UseHTTPS:           false,
 		},
-		Http: config.HttpConfig{
-			Rules: config.HttpConfigRules{
+		HTTP: config.HTTPConfig{
+			Rules: config.HTTPConfigRules{
 				AccessControlAllowOrigin: "*",
 			},
 		},

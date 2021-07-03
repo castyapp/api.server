@@ -6,8 +6,8 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/castyapp/api.server/config"
 	"github.com/MrJoshLab/go-respond"
+	"github.com/castyapp/api.server/config"
 	"github.com/gin-gonic/gin"
 )
 
@@ -67,5 +67,4 @@ func HcaptchaMiddleware(ctx *gin.Context) {
 	}
 
 	ctx.AbortWithStatusJSON(invalidCode, invalidResponse)
-	return
 }

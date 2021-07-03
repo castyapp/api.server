@@ -11,9 +11,9 @@ func NewValidator(validatorStruct interface{}) (errors map[string]interface{}) {
 	err := validate.Struct(validatorStruct)
 
 	if err != nil {
-		switch err.(type) {
+		switch err := err.(type) {
 		case validator.ValidationErrors:
-			for _, e := range err.(validator.ValidationErrors) {
+			for _, e := range err {
 				errors[strings.ToSnakeCase(e.Field())] = e.Translate(trans)
 			}
 		}

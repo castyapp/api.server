@@ -9,12 +9,12 @@ import (
 
 const (
 	episodeEndpoint = "https://api.spotify.com/v1/episodes/%s"
-	trackEndpoint = "https://api.spotify.com/v1/tracks/%s"
+	trackEndpoint   = "https://api.spotify.com/v1/tracks/%s"
 )
 
-func GetTrack(trackId, accessToken string) (*Track, error) {
+func GetTrack(trackID, accessToken string) (*Track, error) {
 
-	request, err := http.NewRequest(http.MethodGet, fmt.Sprintf(trackEndpoint, trackId), nil)
+	request, err := http.NewRequest(http.MethodGet, fmt.Sprintf(trackEndpoint, trackID), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -45,16 +45,16 @@ func GetTrack(trackId, accessToken string) (*Track, error) {
 }
 
 type Track struct {
-	Album             Album        `json:"album"`
-	Artists           []Artist     `json:"artists"`
-	DurationMs        int          `json:"duration_ms"`
-	Name              string       `json:"name"`
-	URI               string       `json:"uri"`
+	Album      Album    `json:"album"`
+	Artists    []Artist `json:"artists"`
+	DurationMs int      `json:"duration_ms"`
+	Name       string   `json:"name"`
+	URI        string   `json:"uri"`
 }
 
 type Artist struct {
-	Id     string   `json:"id"`
-	Name   string   `json:"name"`
+	ID   string `json:"id"`
+	Name string `json:"name"`
 }
 
 type Album struct {

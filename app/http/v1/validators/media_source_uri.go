@@ -21,7 +21,7 @@ func init() {
 			if strings.Contains(uri.Host, "spotify") {
 				return true
 			}
-			return false
+			return true
 		},
 		TranslationRegister: func(ut ut.Translator) error {
 			return ut.Add("media_source_uri", "MediaSourceUri is not valid", true)

@@ -1,10 +1,10 @@
 package user
 
 import (
+	"github.com/MrJoshLab/go-respond"
 	"github.com/castyapp/api.server/app/components"
 	"github.com/castyapp/api.server/grpc"
 	"github.com/castyapp/libcasty-protocol-go/proto"
-	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
 )
 
@@ -28,18 +28,17 @@ func GetPendingFriendRequests(ctx *gin.Context) {
 	}
 
 	ctx.JSON(respond.Default.Succeed(friendRequests))
-	return
 }
 
 func GetFriend(ctx *gin.Context) {
 
 	var (
-		friendId = ctx.Param("friend_id")
+		friendID = ctx.Param("friend_id")
 		token    = ctx.GetHeader("Authorization")
 	)
 
 	response, err := grpc.UserServiceClient.GetFriend(ctx, &proto.FriendRequest{
-		FriendId: friendId,
+		FriendId: friendID,
 		AuthRequest: &proto.AuthenticateRequest{
 			Token: []byte(token),
 		},
@@ -53,7 +52,6 @@ func GetFriend(ctx *gin.Context) {
 	}
 
 	ctx.JSON(respond.Default.Succeed(response.Result))
-	return
 }
 
 func GetFriendRequest(ctx *gin.Context) {
@@ -78,7 +76,6 @@ func GetFriendRequest(ctx *gin.Context) {
 	}
 
 	ctx.JSON(respond.Default.Succeed(response))
-	return
 }
 
 func GetFriends(ctx *gin.Context) {
@@ -100,5 +97,4 @@ func GetFriends(ctx *gin.Context) {
 	}
 
 	ctx.JSON(respond.Default.Succeed(friends))
-	return
 }

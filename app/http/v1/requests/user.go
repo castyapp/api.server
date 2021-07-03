@@ -5,7 +5,7 @@ type SearchUserRequest struct {
 }
 
 type AcceptFriendRequest struct {
-	RequestId string `validate:"required" form:"request_id"`
+	RequestID string `validate:"required" form:"request_id"`
 }
 
 type UpdatePasswordRequest struct {

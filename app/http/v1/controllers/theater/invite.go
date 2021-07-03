@@ -6,11 +6,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/castyapp/libcasty-protocol-go/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/castyapp/api.server/app/components"
 	"github.com/castyapp/api.server/app/http/v1/requests"
 	"github.com/castyapp/api.server/grpc"
+	"github.com/castyapp/libcasty-protocol-go/proto"
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,8 +23,17 @@ func Invite(ctx *gin.Context) {
 	)
 	defer cancelFunc()
 
-	rawJson, err := ctx.GetRawData()
-	if err := json.Unmarshal(rawJson, request); err != nil {
+	rawJSON, err := ctx.GetRawData()
+	if err != nil {
+		ctx.JSON(respond.Default.ValidationErrors(map[string]interface{}{
+			"body": []string{
+				"Could not get json body from request",
+			},
+		}))
+		return
+	}
+
+	if err := json.Unmarshal(rawJSON, request); err != nil {
 		ctx.JSON(respond.Default.ValidationErrors(map[string]interface{}{
 			"friend_ids": []string{
 				"Could not get parameters from raw json data!",
@@ -67,5 +76,4 @@ func Invite(ctx *gin.Context) {
 	ctx.JSON(respond.Default.SetStatusCode(200).
 		SetStatusText("success").
 		RespondWithMessage("Invited!"))
-	return
 }

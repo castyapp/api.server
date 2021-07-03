@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/castyapp/libcasty-protocol-go/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/castyapp/api.server/app/components"
 	"github.com/castyapp/api.server/app/components/strings"
@@ -14,6 +13,7 @@ import (
 	"github.com/castyapp/api.server/app/http/v1/validators"
 	"github.com/castyapp/api.server/grpc"
 	"github.com/castyapp/api.server/storage"
+	"github.com/castyapp/libcasty-protocol-go/proto"
 	"github.com/getsentry/sentry-go"
 	"github.com/gin-gonic/gin"
 	"github.com/minio/minio-go"
@@ -38,15 +38,16 @@ func Update(ctx *gin.Context) {
 				SetStatusText("Failed!").
 				SetStatusCode(400).
 				RespondWithMessage("Upload failed. Please try again later!"))
+			return
 		}
 
-		_, err = storage.Client.PutObjectWithContext(ctx, "avatars", avatarObject, afile, -1, minio.PutObjectOptions{})
-		if err != nil {
+		if _, err := storage.Client.PutObjectWithContext(ctx, "avatars", avatarObject, afile, -1, minio.PutObjectOptions{}); err != nil {
 			sentry.CaptureException(err)
 			ctx.JSON(respond.Default.
 				SetStatusText("Failed!").
 				SetStatusCode(400).
 				RespondWithMessage("Upload failed. Please try again later!"))
+			return
 		}
 
 		protoUser.Avatar = avatarName
@@ -79,7 +80,6 @@ func Update(ctx *gin.Context) {
 	}
 
 	ctx.JSON(respond.Default.Succeed(response.Result))
-	return
 }
 
 func UpdatePassword(ctx *gin.Context) {
@@ -126,5 +126,4 @@ func UpdatePassword(ctx *gin.Context) {
 	ctx.JSON(respond.Default.SetStatusText("Success").
 		SetStatusCode(http.StatusOK).
 		RespondWithMessage("Password updated successfully!"))
-	return
 }

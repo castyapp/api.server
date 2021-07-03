@@ -1,8 +1,8 @@
 package requests
 
 import (
-	"github.com/castyapp/libcasty-protocol-go/proto"
 	"github.com/castyapp/api.server/app/models"
+	"github.com/castyapp/libcasty-protocol-go/proto"
 )
 
 type UpdateTheaterRequest struct {
@@ -28,5 +28,5 @@ type NewMediaSourceRequest struct {
 }
 
 type MediaSourceRequest struct {
-	SourceId string `validate:"required"`
+	SourceID string `validate:"required"`
 }
