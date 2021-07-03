@@ -12,21 +12,21 @@ var validBuckets = []string{
 	"posters",
 }
 
-type ConfigMap struct {
+type ConfMap struct {
 	Debug     bool            `hcl:"debug"`
 	Env       string          `hcl:"env"`
 	Grpc      GrpcConfig      `hcl:"grpc,block"`
-	Http      HttpConfig      `hcl:"http,block"`
+	HTTP      HTTPConfig      `hcl:"http,block"`
 	S3        S3Config        `hcl:"s3,block"`
 	Sentry    SentryConfig    `hcl:"sentry,block"`
 	Recaptcha RecaptchaConfig `hcl:"recaptcha,block"`
 }
 
-type HttpConfig struct {
-	Rules HttpConfigRules `hcl:"rules,label"`
+type HTTPConfig struct {
+	Rules HTTPConfigRules `hcl:"rules,label"`
 }
 
-type HttpConfigRules struct {
+type HTTPConfigRules struct {
 	AccessControlAllowOrigin string `hcl:"access_control_allow_origin"`
 }
 
@@ -39,7 +39,7 @@ type S3Config struct {
 	Endpoint           string `hcl:"endpoint"`
 	AccessKey          string `hcl:"access_key"`
 	SecretKey          string `hcl:"secret_key"`
-	UseHttps           bool   `hcl:"use_https"`
+	UseHTTPS           bool   `hcl:"use_https"`
 	InsecureSkipVerify bool   `hcl:"insecure_skip_verify"`
 }
 
@@ -54,7 +54,7 @@ type RecaptchaConfig struct {
 	Secret  string `hcl:"secret"`
 }
 
-var Map = new(ConfigMap)
+var Map = new(ConfMap)
 
 func Load(filename string) (err error) {
 	d, err := ioutil.ReadFile(filename)

@@ -7,9 +7,9 @@ import (
 	"net/http"
 )
 
-func GetEpisode(episodeId, accessToken string) (*Episode, error) {
+func GetEpisode(episodeID, accessToken string) (*Episode, error) {
 
-	request, err := http.NewRequest(http.MethodGet, fmt.Sprintf(episodeEndpoint, episodeId), nil)
+	request, err := http.NewRequest(http.MethodGet, fmt.Sprintf(episodeEndpoint, episodeID), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -40,14 +40,14 @@ func GetEpisode(episodeId, accessToken string) (*Episode, error) {
 }
 
 type Episode struct {
-	Show            Show         `json:"show"`
-	DurationMs      int          `json:"duration_ms"`
-	Name            string       `json:"name"`
-	Images          []Image      `json:"images"`
-	URI             string       `json:"uri"`
+	Show       Show    `json:"show"`
+	DurationMs int     `json:"duration_ms"`
+	Name       string  `json:"name"`
+	Images     []Image `json:"images"`
+	URI        string  `json:"uri"`
 }
 
 type Show struct {
-	Id    string  `json:"id"`
-	Name  string  `json:"name"`
+	ID   string `json:"id"`
+	Name string `json:"name"`
 }

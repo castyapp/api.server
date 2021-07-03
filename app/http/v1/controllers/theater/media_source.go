@@ -5,13 +5,13 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/castyapp/libcasty-protocol-go/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/castyapp/api.server/app/components"
 	"github.com/castyapp/api.server/app/http/v1/requests"
 	"github.com/castyapp/api.server/app/http/v1/validators"
 	"github.com/castyapp/api.server/app/models"
 	"github.com/castyapp/api.server/grpc"
+	"github.com/castyapp/libcasty-protocol-go/proto"
 	"github.com/gin-gonic/gin"
 )
 
@@ -45,7 +45,6 @@ func GetMediaSources(ctx *gin.Context) {
 	ctx.JSON(respond.Default.SetStatusText("success").
 		SetStatusCode(http.StatusOK).
 		RespondWithResult(mediaSources))
-	return
 }
 
 func DeleteMediaSource(ctx *gin.Context) {
@@ -53,7 +52,7 @@ func DeleteMediaSource(ctx *gin.Context) {
 	var (
 		token   = ctx.GetHeader("Authorization")
 		request = &requests.MediaSourceRequest{
-			SourceId: ctx.Query("source_id"),
+			SourceID: ctx.Query("source_id"),
 		}
 	)
 
@@ -66,7 +65,7 @@ func DeleteMediaSource(ctx *gin.Context) {
 		AuthRequest: &proto.AuthenticateRequest{
 			Token: []byte(token),
 		},
-		MediaSourceId: request.SourceId,
+		MediaSourceId: request.SourceID,
 	})
 
 	if err != nil {
@@ -77,7 +76,6 @@ func DeleteMediaSource(ctx *gin.Context) {
 	}
 
 	ctx.JSON(respond.Default.UpdateSucceeded())
-	return
 }
 
 func SelectNewMediaSource(ctx *gin.Context) {
@@ -85,7 +83,7 @@ func SelectNewMediaSource(ctx *gin.Context) {
 	var (
 		token   = ctx.GetHeader("Authorization")
 		request = &requests.MediaSourceRequest{
-			SourceId: ctx.PostForm("source_id"),
+			SourceID: ctx.PostForm("source_id"),
 		}
 	)
 
@@ -99,7 +97,7 @@ func SelectNewMediaSource(ctx *gin.Context) {
 			Token: []byte(token),
 		},
 		Media: &proto.MediaSource{
-			Id: request.SourceId,
+			Id: request.SourceID,
 		},
 	})
 
@@ -111,11 +109,9 @@ func SelectNewMediaSource(ctx *gin.Context) {
 	}
 
 	ctx.JSON(respond.Default.Succeed(response.Result[0]))
-	return
-
 }
 
-func ParseMediaSourceUri(ctx *gin.Context) {
+func ParseMediaSourceURI(ctx *gin.Context) {
 
 	request := &requests.NewMediaSourceRequest{
 		Source: ctx.PostForm("media_source_uri"),
@@ -152,7 +148,6 @@ func ParseMediaSourceUri(ctx *gin.Context) {
 	}
 
 	ctx.JSON(respond.Default.Succeed(mediaSource.Proto()))
-	return
 }
 
 func AddNewMediaSource(ctx *gin.Context) {
@@ -217,5 +212,4 @@ func AddNewMediaSource(ctx *gin.Context) {
 	}
 
 	ctx.JSON(respond.Default.Succeed(response.Result[0]))
-	return
 }

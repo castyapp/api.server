@@ -5,13 +5,13 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/castyapp/libcasty-protocol-go/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/castyapp/api.server/app/components"
 	"github.com/castyapp/api.server/app/components/subtitle"
 	"github.com/castyapp/api.server/app/http/v1/requests"
 	"github.com/castyapp/api.server/app/http/v1/validators"
 	"github.com/castyapp/api.server/grpc"
+	"github.com/castyapp/libcasty-protocol-go/proto"
 	"github.com/getsentry/sentry-go"
 	"github.com/gin-gonic/gin"
 )
@@ -51,7 +51,6 @@ func Subtitles(ctx *gin.Context) {
 	}
 
 	ctx.JSON(respond.Default.Succeed(subtitles))
-	return
 }
 
 // Send request to grpc for adding subtitle to theater
@@ -110,7 +109,6 @@ func AddSubtitle(ctx *gin.Context) {
 	}
 
 	ctx.JSON(respond.Default.InsertSucceeded())
-	return
 }
 
 // Send request to grpc for removing subtitle from theater
@@ -138,5 +136,4 @@ func RemoveSubtitle(ctx *gin.Context) {
 	}
 
 	ctx.JSON(respond.Default.DeleteSucceeded())
-	return
 }

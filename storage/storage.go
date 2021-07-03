@@ -15,7 +15,7 @@ func Configure() (err error) {
 		config.Map.S3.Endpoint,
 		config.Map.S3.AccessKey,
 		config.Map.S3.SecretKey,
-		config.Map.S3.UseHttps,
+		config.Map.S3.UseHTTPS,
 	)
 	if err != nil {
 		return err

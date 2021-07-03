@@ -5,11 +5,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/castyapp/libcasty-protocol-go/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/castyapp/api.server/app/http/v1/requests"
 	"github.com/castyapp/api.server/app/http/v1/validators"
 	"github.com/castyapp/api.server/grpc"
+	"github.com/castyapp/libcasty-protocol-go/proto"
 	"github.com/getsentry/sentry-go"
 	"github.com/gin-gonic/gin"
 )
@@ -20,17 +20,17 @@ func Callback(ctx *gin.Context) {
 		request = &requests.OauthCallbackRequest{
 			Code: ctx.PostForm("code"),
 		}
-		service proto.Connection_Type
-		token   = ctx.GetHeader("Authorization")
+		grpcRequest = new(proto.OAUTHRequest)
+		token       = ctx.GetHeader("Authorization")
 	)
 
 	switch serviceName := ctx.Param("service"); serviceName {
 	case "google":
-		service = proto.Connection_GOOGLE
+		grpcRequest.Service = proto.Connection_GOOGLE
 	case "spotify":
-		service = proto.Connection_SPOTIFY
+		grpcRequest.Service = proto.Connection_SPOTIFY
 	default:
-		service = proto.Connection_UNKNOWN
+		grpcRequest.Service = proto.Connection_UNKNOWN
 		ctx.JSON(respond.Default.SetStatusCode(http.StatusBadRequest).
 			SetStatusText("Failed!").
 			RespondWithMessage("Invalid OAUTH Service!"))
@@ -42,21 +42,17 @@ func Callback(ctx *gin.Context) {
 		return
 	}
 
+	grpcRequest.Code = request.Code
 	mCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
-	req := &proto.OAUTHRequest{
-		Code:    ctx.PostForm("code"),
-		Service: service,
-	}
-
 	if token != "" {
-		req.AuthRequest = &proto.AuthenticateRequest{
+		grpcRequest.AuthRequest = &proto.AuthenticateRequest{
 			Token: []byte(token),
 		}
 	}
 
-	response, err := grpc.AuthServiceClient.CallbackOAUTH(mCtx, req)
+	response, err := grpc.AuthServiceClient.CallbackOAUTH(mCtx, grpcRequest)
 	if err != nil {
 		sentry.CaptureException(err)
 		ctx.JSON(respond.Default.SetStatusCode(http.StatusUnauthorized).
@@ -70,5 +66,4 @@ func Callback(ctx *gin.Context) {
 		"refresh_token": string(response.RefreshedToken),
 		"type":          "bearer",
 	}))
-	return
 }

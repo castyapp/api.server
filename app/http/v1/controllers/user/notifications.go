@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/MrJoshLab/go-respond"
 	"github.com/castyapp/api.server/app/components"
 	"github.com/castyapp/api.server/grpc"
 	"github.com/castyapp/libcasty-protocol-go/proto"
-	"github.com/MrJoshLab/go-respond"
 	"github.com/gin-gonic/gin"
 )
 
@@ -42,7 +42,6 @@ func Notifications(ctx *gin.Context) {
 			"notifications": notifications,
 			"unread_count":  response.UnreadCount,
 		}))
-	return
 }
 
 func ReadAllNotifications(ctx *gin.Context) {
@@ -72,5 +71,4 @@ func ReadAllNotifications(ctx *gin.Context) {
 	}
 
 	ctx.JSON(respond.Default.UpdateSucceeded())
-	return
 }

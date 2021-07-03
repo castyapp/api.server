@@ -1,17 +1,17 @@
 package messages
 
 import (
-	"github.com/castyapp/libcasty-protocol-go/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/castyapp/api.server/app/components"
 	"github.com/castyapp/api.server/grpc"
+	"github.com/castyapp/libcasty-protocol-go/proto"
 	"github.com/gin-gonic/gin"
 )
 
 func Messages(ctx *gin.Context) {
 
 	var (
-		receiverId = ctx.Param("receiver_id")
+		receiverID = ctx.Param("receiver_id")
 		token      = ctx.GetHeader("Authorization")
 	)
 
@@ -19,7 +19,7 @@ func Messages(ctx *gin.Context) {
 		AuthRequest: &proto.AuthenticateRequest{
 			Token: []byte(token),
 		},
-		ReceiverId: receiverId,
+		ReceiverId: receiverID,
 	})
 
 	if err != nil {
@@ -31,5 +31,4 @@ func Messages(ctx *gin.Context) {
 	}
 
 	ctx.JSON(respond.Default.Succeed(response.Result))
-	return
 }

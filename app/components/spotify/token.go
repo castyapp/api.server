@@ -13,10 +13,10 @@ const (
 )
 
 type Token struct {
-	AccessToken  string   `json:"access_token"`
-	TokenType    string   `json:"token_type"`
-	ExpiresAt    int      `json:"expires_at"`
-	Scope        string   `json:"scope"`
+	AccessToken string `json:"access_token"`
+	TokenType   string `json:"token_type"`
+	ExpiresAt   int    `json:"expires_at"`
+	Scope       string `json:"scope"`
 }
 
 func GetAuthenticationToken() (*Token, error) {

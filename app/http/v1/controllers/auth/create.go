@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"github.com/castyapp/libcasty-protocol-go/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/castyapp/api.server/app/components"
 	"github.com/castyapp/api.server/app/components/recaptcha"
@@ -9,6 +8,7 @@ import (
 	"github.com/castyapp/api.server/app/http/v1/validators"
 	"github.com/castyapp/api.server/config"
 	"github.com/castyapp/api.server/grpc"
+	"github.com/castyapp/libcasty-protocol-go/proto"
 	"github.com/getsentry/sentry-go"
 	"github.com/gin-gonic/gin"
 )
@@ -63,5 +63,4 @@ func Create(ctx *gin.Context) {
 		"refresh_token": string(response.RefreshedToken),
 		"type":          "bearer",
 	}))
-	return
 }

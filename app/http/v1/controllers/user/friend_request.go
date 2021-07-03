@@ -5,26 +5,27 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/castyapp/libcasty-protocol-go/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/castyapp/api.server/app/components"
 	"github.com/castyapp/api.server/app/http/v1/requests"
 	"github.com/castyapp/api.server/app/http/v1/validators"
 	"github.com/castyapp/api.server/grpc"
+	"github.com/castyapp/libcasty-protocol-go/proto"
 	"github.com/gin-gonic/gin"
 )
 
 func SendFriendRequest(ctx *gin.Context) {
 
 	var (
-		friendId     = ctx.Param("friend_id")
-		mCtx, cancel = context.WithTimeout(ctx, 20*time.Second)
-		token        = ctx.GetHeader("Authorization")
+		friendID = ctx.Param("friend_id")
+		token    = ctx.GetHeader("Authorization")
 	)
+
+	mCtx, cancel := context.WithTimeout(ctx, 20*time.Second)
 	defer cancel()
 
 	response, err := grpc.UserServiceClient.SendFriendRequest(mCtx, &proto.FriendRequest{
-		FriendId: friendId,
+		FriendId: friendID,
 		AuthRequest: &proto.AuthenticateRequest{
 			Token: []byte(token),
 		},
@@ -59,12 +60,13 @@ func SendFriendRequest(ctx *gin.Context) {
 func AcceptFriendRequest(ctx *gin.Context) {
 
 	var (
-		mCtx, cancel = context.WithTimeout(ctx, 20*time.Second)
-		token        = ctx.GetHeader("Authorization")
-		request      = &requests.AcceptFriendRequest{
-			RequestId: ctx.PostForm("request_id"),
+		token   = ctx.GetHeader("Authorization")
+		request = &requests.AcceptFriendRequest{
+			RequestID: ctx.PostForm("request_id"),
 		}
 	)
+
+	mCtx, cancel := context.WithTimeout(ctx, 20*time.Second)
 	defer cancel()
 
 	if errors := validators.NewValidator(request); len(errors) != 0 {
@@ -73,7 +75,7 @@ func AcceptFriendRequest(ctx *gin.Context) {
 	}
 
 	response, err := grpc.UserServiceClient.AcceptFriendRequest(mCtx, &proto.FriendRequest{
-		RequestId: request.RequestId,
+		RequestId: request.RequestID,
 		AuthRequest: &proto.AuthenticateRequest{
 			Token: []byte(token),
 		},

@@ -29,7 +29,7 @@ func RegisterRoutes(router *gin.Engine) {
 	// user routes
 	authUserGroup := v1.Group("user")
 
-	// use authenitcation middleware for user group routes
+	// use authentication middleware for user group routes
 	authUserGroup.Use(middlewares.Authentication)
 
 	authUserGroup.GET("@me", user.GetMe)
@@ -43,7 +43,7 @@ func RegisterRoutes(router *gin.Engine) {
 	authUserGroup.GET("@media", theater.GetMediaSources)
 	authUserGroup.POST("@media", theater.AddNewMediaSource)
 	authUserGroup.DELETE("@media", theater.DeleteMediaSource)
-	authUserGroup.POST("@media/parse", theater.ParseMediaSourceUri)
+	authUserGroup.POST("@media/parse", theater.ParseMediaSourceURI)
 
 	// notifications routes
 	notifsGroup := authUserGroup.Group("@notifications")

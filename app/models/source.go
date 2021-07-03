@@ -16,8 +16,13 @@ import (
 	"github.com/knadh/go-get-youtube/youtube"
 )
 
+const (
+	MediaTypeTrack   = "track"
+	MediaTypeEpisode = "episode"
+)
+
 type MediaFile struct {
-	Id     string        `json:"id"`
+	ID     string        `json:"id"`
 	Title  string        `json:"title"`
 	Length time.Duration `json:"length"`
 	Size   int           `json:"size"`
@@ -53,7 +58,7 @@ func (m *MediaSource) parseYoutube() error {
 
 func (m *MediaSource) parseSpotify(id string) error {
 	switch m.trackType {
-	case "track":
+	case MediaTypeTrack:
 		track, err := spotify.GetTrack(id, m.accessToken)
 		if err != nil {
 			return err
@@ -70,7 +75,7 @@ func (m *MediaSource) parseSpotify(id string) error {
 			}
 		}
 		return nil
-	case "episode":
+	case MediaTypeEpisode:
 		episode, err := spotify.GetEpisode(id, m.accessToken)
 		if err != nil {
 			return err
@@ -85,7 +90,7 @@ func (m *MediaSource) parseSpotify(id string) error {
 	return errors.New("could not parse spotify")
 }
 
-func (m *MediaSource) parseDownloadUri() error {
+func (m *MediaSource) parseDownloadURI() error {
 	response, err := http.Get(m.u)
 	if err != nil {
 		m.proto.Type = proto.MediaSource_UNKNOWN
@@ -112,11 +117,11 @@ func (m *MediaSource) parseDownloadUri() error {
 }
 
 func getMovieTitle(uri string) string {
-	fileUrl, err := url.Parse(uri)
+	fileURL, err := url.Parse(uri)
 	if err != nil {
 		return ""
 	}
-	path := fileUrl.Path
+	path := fileURL.Path
 	segments := strings.Split(path, "/")
 	return segments[len(segments)-1]
 }
@@ -154,18 +159,16 @@ func (m *MediaSource) Parse() error {
 	case "spotify", "open.spotify.com":
 		parsed := strings.Split(u.Path, "/")
 		switch strings.TrimSpace(parsed[1]) {
-		case "track":
+		case MediaTypeTrack:
 			m.trackType = "track"
-			break
-		case "episode":
+		case MediaTypeEpisode:
 			m.trackType = "episode"
-			break
 		default:
 			return errors.New("could not parse spotify")
 		}
 		return m.parseSpotify(strings.TrimSpace(parsed[2]))
 	default:
-		return m.parseDownloadUri()
+		return m.parseDownloadURI()
 	}
 }
 
@@ -189,6 +192,6 @@ func (m *MediaSource) IsSpotify() bool {
 	return m.proto.Type == proto.MediaSource_SPOTIFY
 }
 
-func (m *MediaSource) IsDownloadUri() bool {
+func (m *MediaSource) IsDownloadURI() bool {
 	return m.proto.Type == proto.MediaSource_DOWNLOAD_URI
 }

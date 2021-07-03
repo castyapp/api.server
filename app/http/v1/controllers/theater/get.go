@@ -1,10 +1,10 @@
 package theater
 
 import (
-	"github.com/castyapp/libcasty-protocol-go/proto"
 	"github.com/MrJoshLab/go-respond"
 	"github.com/castyapp/api.server/app/components"
 	"github.com/castyapp/api.server/grpc"
+	"github.com/castyapp/libcasty-protocol-go/proto"
 	"github.com/gin-gonic/gin"
 )
 
@@ -38,5 +38,4 @@ func Theater(ctx *gin.Context) {
 	}
 
 	ctx.JSON(respond.Default.Succeed(response.Result))
-	return
 }
